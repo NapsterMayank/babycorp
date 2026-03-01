@@ -146,8 +146,8 @@ export default function SportsPage() {
 
       {/* Sports */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-20">
-        {sports.map((sport, i) => (
-          <SportDetail key={sport.name} sport={sport} index={i} />
+        {sports.map((sport) => (
+          <SportDetail key={sport.name} sport={sport} />
         ))}
       </div>
 
@@ -174,10 +174,8 @@ export default function SportsPage() {
 
 function SportDetail({
   sport,
-  index,
 }: {
   sport: (typeof sports)[0];
-  index: number;
 }) {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.15 });
 
