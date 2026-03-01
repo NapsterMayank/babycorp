@@ -3,25 +3,228 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --navy: #1A1A2E;
+  --orange: #FF6B35;
+  --gold: #FFD700;
+  --aqua: #00C2CB;
+  --cream: #FFF8F0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-lato), sans-serif;
+  color: #1A1A2E;
+  background: #FFF8F0;
+  overflow-x: hidden;
 }
 
+/* Scroll progress bar */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #FFD700, #FF6B35);
+  z-index: 9999;
+  transition: width 0.1s linear;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #1A1A2E;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #FF6B35, #FFD700);
+  border-radius: 4px;
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, #FFD700, #FF6B35);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-aqua {
+  background: linear-gradient(135deg, #00C2CB, #FFD700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass morphism card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+}
+
+/* Ambient floating elements */
+@keyframes floatUp {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.15;
+  }
+  90% {
+    opacity: 0.15;
+  }
+  100% {
+    transform: translateY(-100px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.float-particle {
+  position: absolute;
+  animation: floatUp linear infinite;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* Water ripple effect */
+.water-ripple {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 194, 203, 0.3);
+  animation: ripple 3s ease-out infinite;
+}
+
+@keyframes ripple {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 1;
+  }
+  100% {
+    width: 300px;
+    height: 300px;
+    opacity: 0;
+  }
+}
+
+/* Counter animation */
+.stat-number {
+  font-family: var(--font-bebas), sans-serif;
+  font-size: 3.5rem;
+  line-height: 1;
+}
+
+/* Accordion */
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-out;
+}
+.accordion-content.open {
+  max-height: 500px;
+}
+
+/* Comparison table */
+.comparison-table td,
+.comparison-table th {
+  padding: 1rem 1.5rem;
+  text-align: left;
+}
+
+.comparison-table tr:nth-child(even) {
+  background: rgba(255, 107, 53, 0.05);
+}
+
+/* Sparkle / confetti effect */
+@keyframes sparkle {
+  0% { transform: scale(0) rotate(0deg); opacity: 1; }
+  100% { transform: scale(1) rotate(180deg); opacity: 0; }
+}
+
+/* Wave animation for swimming section */
+.wave-bg {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 100px;
+  background: linear-gradient(transparent, rgba(0, 194, 203, 0.15));
+  border-radius: 50% 50% 0 0;
+}
+
+/* Timeline golden line */
+.timeline-line {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  background: linear-gradient(180deg, #FFD700, #FF6B35);
+  border-radius: 3px;
+}
+
+/* Partner logos scroller */
+.partner-scroll {
+  display: flex;
+  gap: 3rem;
+  animation: scrollPartners 30s linear infinite;
+}
+
+@keyframes scrollPartners {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* WhatsApp pulse */
+.whatsapp-pulse {
+  animation: waPulse 2s ease-in-out infinite;
+}
+
+@keyframes waPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); }
+  50% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
+}
+
+/* Button press */
+.btn-press:active {
+  transform: scale(0.97);
+}
+
+/* Hero baby animation keyframes */
+@keyframes babyWakeUp {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes fistPump {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-15px) rotate(-5deg); }
+  75% { transform: translateY(-15px) rotate(5deg); }
+}
+
+/* Layer transitions */
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .text-shadow-gold {
+    text-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+  }
+  .text-shadow-orange {
+    text-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
   }
 }
