@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X } from "lucide-react";
 
 const navLinks = [
@@ -38,13 +39,8 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="relative">
-              <div className="w-10 h-10 bg-gradient-to-br from-gold to-orange rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
-                <span className="text-navy font-bebas text-xl font-bold">B</span>
-              </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 text-xs flex items-center justify-center">
-                👑
-              </div>
+            <div className="relative transform group-hover:scale-110 transition-transform duration-300">
+              <Image src="/logo.png" alt="BabyCorp Logo" width={40} height={40} className="w-10 h-10 object-contain rounded" />
             </div>
             <div className="flex flex-col">
               <span className="font-nunito font-black text-lg text-white tracking-tight leading-none">

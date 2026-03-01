@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Instagram, Youtube, Mail, Phone, MapPin } from "lucide-react";
 
 const footerLinks = [
@@ -31,10 +32,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-gold to-orange rounded-xl flex items-center justify-center">
-                <span className="text-navy font-bebas text-xl font-bold">B</span>
-              </div>
+            <div className="flex items-center gap-2 mb-4 relative">
+              <Image src="/logo.png" alt="BabyCorp Logo" width={40} height={40} className="w-10 h-10 object-contain rounded" />
               <div>
                 <div className="font-nunito font-black text-lg tracking-tight">
                   BABYCORP
