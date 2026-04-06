@@ -18,7 +18,8 @@
     "react-countup": "^6.5.3",
     "react-dom": "^18",
     "react-intersection-observer": "^10.0.3",
-    "tailwind-merge": "^3.5.0"
+    "tailwind-merge": "^3.5.0",
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@types/node": "^20",

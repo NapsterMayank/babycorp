@@ -1,0 +1,37 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "command": "powershell -NoProfile -File \"D:/personal/babycorp/.dual-graph/stop_hook.ps1\"",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "command": "powershell -NoProfile -File \"D:/personal/babycorp/.dual-graph/prime.ps1\"",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "command": "powershell -NoProfile -File \"D:/personal/babycorp/.dual-graph/prime.ps1\"",
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  }
+}

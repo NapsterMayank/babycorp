@@ -99,25 +99,26 @@ const sports = [
     ],
   },
   {
-    name: "Table Tennis",
-    emoji: "🏓",
+    name: "Cricket",
+    emoji: "🏏",
     age: "4 years+",
-    color: "from-[#C62828] to-[#E53935]",
-    bgLight: "bg-red-50",
+    color: "from-[#166534] to-[#15803d]",
+    bgLight: "bg-green-50",
     description:
-      "India's fastest growing Olympic sport. Table Tennis develops lightning-fast reflexes, mental sharpness, and is accessible from a young age. Our program uses child-sized equipment and tables.",
+      "Cricket is India's most loved sport. Our program introduces young children to the game through fun drills, soft ball practice, and age-appropriate batting and fielding exercises.",
     curriculum: [
-      "4-5 years: Paddle grip, ball bouncing, basic forehand",
-      "5-6 years: Backhand basics, serving, rally games",
-      "6-7 years: Spin techniques, match play, tournament prep",
+      "4-5 years: Ball familiarization, catching drills, basic batting stance",
+      "5-6 years: Soft ball batting, underarm bowling, fielding basics",
+      "6-7 years: Overarm bowling, batting techniques, match play",
+      "7-10 years: Competitive formats, position-specific skills, team tactics",
     ],
     benefits: [
-      "Fastest sport for reaction time development",
-      "Hand-eye coordination at elite level",
-      "Mental sharpness and quick decision making",
-      "Low injury risk — joint friendly",
-      "Can be practiced anywhere",
-      "Builds competitive resilience",
+      "Exceptional hand-eye coordination",
+      "Teamwork and communication skills",
+      "Physical fitness and stamina",
+      "Strategic thinking and game awareness",
+      "Discipline and focus under pressure",
+      "Social development through team sport",
     ],
   },
 ];
@@ -137,8 +138,9 @@ export default function SportsPage() {
               Our <span className="gradient-text">Sports Programs</span>
             </h1>
             <p className="text-white/60 font-poppins text-lg max-w-2xl mx-auto">
-              Five disciplines, one complete champion. Each sport is taught by
-              certified coaches using age-appropriate methodologies.
+              Chess, Swimming, Cricket, Badminton & Gymnastics — five disciplines,
+              one complete champion. Each sport taught by certified coaches using
+              age-appropriate methodologies.
             </p>
           </motion.div>
         </div>

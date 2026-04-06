@@ -7,6 +7,21 @@ import Image from "next/image";
 
 const sports = [
   {
+    name: "Chess",
+    emoji: "♟️",
+    image: "/images/baby-chess.png",
+    gradient: "from-[#3E2723] via-[#5D4037] to-[#6D4C41]",
+    stat: '"Gukesh became the youngest world champion. He started at age 3."',
+    age: "3 Years+",
+    benefits: "Focus, Strategy, Problem solving",
+    floatItems: [
+      { emoji: "♔", x: "10%", y: "22%", delay: 0.4, size: 28 },
+      { emoji: "🧠", x: "86%", y: "20%", delay: 0, size: 24 },
+      { emoji: "♛", x: "12%", y: "72%", delay: 0.7, size: 22 },
+      { emoji: "🏆", x: "84%", y: "68%", delay: 1, size: 20 },
+    ],
+  },
+  {
     name: "Swimming",
     emoji: "🏊",
     image: "/images/baby-swimming.png",
@@ -22,33 +37,18 @@ const sports = [
     ],
   },
   {
-    name: "Gymnastics",
-    emoji: "🤸",
-    image: "/images/baby-gymnastics.png",
-    gradient: "from-[#6B2FA0] via-[#7c3aed] to-[#8B5CF6]",
-    stat: '"Flexibility built before age 5 lasts a lifetime."',
-    age: "18 Months+",
-    benefits: "Balance, Flexibility, Body awareness",
+    name: "Cricket",
+    emoji: "🏏",
+    image: "/images/baby-cricket.png",
+    gradient: "from-[#1a3a1a] via-[#166534] to-[#15803d]",
+    stat: '"Every Indian child dreams of wearing the blue jersey. Start the journey early."',
+    age: "4 Years+",
+    benefits: "Teamwork, Hand-eye coordination, Discipline",
     floatItems: [
-      { emoji: "⭐", x: "12%", y: "25%", delay: 0.3, size: 24 },
-      { emoji: "✨", x: "88%", y: "18%", delay: 0.8, size: 20 },
-      { emoji: "🎀", x: "8%", y: "70%", delay: 0.2, size: 22 },
-      { emoji: "💫", x: "82%", y: "72%", delay: 1.2, size: 26 },
-    ],
-  },
-  {
-    name: "Chess",
-    emoji: "♟️",
-    image: "/images/baby-chess.png",
-    gradient: "from-[#3E2723] via-[#5D4037] to-[#6D4C41]",
-    stat: '"Gukesh became the youngest world champion. He started at age 3."',
-    age: "3 Years+",
-    benefits: "Focus, Strategy, Problem solving",
-    floatItems: [
-      { emoji: "♔", x: "10%", y: "22%", delay: 0.4, size: 28 },
-      { emoji: "🧠", x: "86%", y: "20%", delay: 0, size: 24 },
-      { emoji: "♛", x: "12%", y: "72%", delay: 0.7, size: 22 },
-      { emoji: "🏆", x: "84%", y: "68%", delay: 1, size: 20 },
+      { emoji: "🏏", x: "10%", y: "20%", delay: 0, size: 26 },
+      { emoji: "🎯", x: "86%", y: "18%", delay: 0.5, size: 22 },
+      { emoji: "⭐", x: "12%", y: "72%", delay: 0.9, size: 20 },
+      { emoji: "🏆", x: "84%", y: "70%", delay: 1.3, size: 24 },
     ],
   },
   {
@@ -67,18 +67,18 @@ const sports = [
     ],
   },
   {
-    name: "Table Tennis",
-    emoji: "🏓",
-    image: "/images/baby-tabletennis.png",
-    gradient: "from-[#991b1b] via-[#dc2626] to-[#ef4444]",
-    stat: '"India\'s fastest-growing Olympic sport. Your child is the future."',
-    age: "4 Years+",
-    benefits: "Reaction speed, Focus, Agility",
+    name: "Gymnastics",
+    emoji: "🤸",
+    image: "/images/baby-gymnastics.png",
+    gradient: "from-[#6B2FA0] via-[#7c3aed] to-[#8B5CF6]",
+    stat: '"Flexibility built before age 5 lasts a lifetime."',
+    age: "18 Months+",
+    benefits: "Balance, Flexibility, Body awareness",
     floatItems: [
-      { emoji: "🏓", x: "10%", y: "20%", delay: 0, size: 26 },
-      { emoji: "🔥", x: "88%", y: "16%", delay: 0.4, size: 22 },
-      { emoji: "⚡", x: "12%", y: "72%", delay: 0.8, size: 20 },
-      { emoji: "💥", x: "84%", y: "70%", delay: 1.1, size: 24 },
+      { emoji: "⭐", x: "12%", y: "25%", delay: 0.3, size: 24 },
+      { emoji: "✨", x: "88%", y: "18%", delay: 0.8, size: 20 },
+      { emoji: "🎀", x: "8%", y: "70%", delay: 0.2, size: 22 },
+      { emoji: "💫", x: "82%", y: "72%", delay: 1.2, size: 26 },
     ],
   },
 ];
@@ -102,8 +102,8 @@ export default function SportsShowcase() {
             <span className="gradient-text">One Complete Champion.</span>
           </h2>
           <p className="text-navy/50 font-lato text-base md:text-lg max-w-2xl mx-auto">
-            Each sport is carefully chosen to develop specific physical and
-            cognitive abilities during the critical early years.
+            Chess, Swimming, Cricket, Badminton & Gymnastics — each carefully chosen
+            to develop specific cognitive and physical abilities during the critical early years.
           </p>
         </motion.div>
       </div>
