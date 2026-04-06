@@ -1,249 +1,232 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { useInView } from "react-intersection-observer";
 import Link from "next/link";
+import { ArrowRight, Check } from "lucide-react";
 
-const sports = [
+const SPORTS = [
   {
-    name: "Swimming",
-    emoji: "🏊",
-    age: "6 months+",
-    color: "from-[#006994] to-[#00C2CB]",
-    bgLight: "bg-aqua/5",
-    description:
-      "Our infant aquatics program is designed by internationally certified swimming coaches. Starting from 6 months, your baby develops water confidence, breath control, and fundamental swimming movements.",
+    id: "chess",
+    name: "Chess",
+    emoji: "♟️",
+    age: "3+ years",
+    color: "from-[#3E2723] via-[#5D4037] to-[#6D4C41]",
+    tagColor: "bg-amber-900/20 text-amber-400 border-amber-900/30",
+    description: "Chess builds extraordinary cognitive skills in young children — pattern recognition, strategic thinking, and deep concentration. Our curriculum follows the FIDE youth pathway.",
     curriculum: [
-      "6-12 months: Water familiarization, parent-assisted floating, breath control",
-      "12-24 months: Submersion, assisted propulsion, back floating",
-      "2-3 years: Independent kicking, arm strokes, pool safety",
-      "3-5 years: Freestyle basics, backstroke introduction, endurance building",
-      "5-7 years: Competitive stroke techniques, diving, race training",
+      "Introduction to pieces and board",
+      "Basic moves and captures",
+      "Opening principles and tactics",
+      "Endgame fundamentals",
+      "Tournament preparation",
     ],
-    benefits: [
-      "Drowning prevention — the #1 safety skill",
-      "Full-body muscle development",
-      "Improved cardiovascular health",
-      "Enhanced lung capacity",
-      "Better sleep patterns",
-      "Cognitive development through sensory stimulation",
-    ],
+    benefits: ["IQ development", "Concentration & focus", "Memory enhancement", "Problem-solving skills", "Patience & resilience"],
+    priceRange: "₹1,500 – ₹2,500/mo",
   },
   {
+    id: "swimming",
+    name: "Swimming",
+    emoji: "🏊",
+    age: "18 months+",
+    color: "from-[#006994] via-[#0891b2] to-[#00C2CB]",
+    tagColor: "bg-cyan-900/20 text-cyan-400 border-cyan-900/30",
+    description: "Swimming is the single most important survival skill you can give your child. Our infant aquatics program is gentle, fun, and backed by international curriculum standards.",
+    curriculum: [
+      "Water familiarization (parent-assisted)",
+      "Breath control and submersion",
+      "Freestyle stroke foundations",
+      "Backstroke and breaststroke",
+      "Competitive technique and racing",
+    ],
+    benefits: ["Drowning prevention", "Full-body strength", "Cardiovascular health", "Lung capacity", "Better sleep patterns"],
+    priceRange: "₹2,500 – ₹4,500/mo",
+  },
+  {
+    id: "cricket",
+    name: "Cricket",
+    emoji: "🏏",
+    age: "4+ years",
+    color: "from-[#1a3a1a] via-[#166534] to-[#15803d]",
+    tagColor: "bg-green-900/20 text-green-400 border-green-900/30",
+    description: "India's national game, taught right. Our BCCI-aligned curriculum takes children from basic batting grip to real match scenarios. Every child learns both batting and bowling.",
+    curriculum: [
+      "Grip, stance, and footwork",
+      "Basic batting strokes",
+      "Bowling run-up and action",
+      "Fielding and catching",
+      "Match awareness and tactics",
+    ],
+    benefits: ["Physical fitness", "Hand-eye coordination", "Teamwork & leadership", "Mental toughness", "National sport passion"],
+    priceRange: "₹2,000 – ₹3,500/mo",
+  },
+  {
+    id: "badminton",
+    name: "Badminton",
+    emoji: "🏸",
+    age: "4+ years",
+    color: "from-[#166534] via-[#15803d] to-[#22c55e]",
+    tagColor: "bg-green-900/20 text-emerald-400 border-green-900/30",
+    description: "Badminton develops speed, agility, and reflexes unlike any other sport. India has produced world champions — and the BabyCorp badminton curriculum is designed to find the next one.",
+    curriculum: [
+      "Grip and basic strokes",
+      "Footwork and court movement",
+      "Net play and smashes",
+      "Doubles strategy",
+      "Tournament match play",
+    ],
+    benefits: ["Speed and agility", "Reflexes & coordination", "Cardiovascular fitness", "Focus and determination", "Competitive instinct"],
+    priceRange: "₹2,000 – ₹3,500/mo",
+  },
+  {
+    id: "gymnastics",
     name: "Gymnastics",
     emoji: "🤸",
     age: "18 months+",
-    color: "from-[#6B2FA0] to-[#8E44AD]",
-    bgLight: "bg-purple-50",
-    description:
-      "Our gymnastics program focuses on developing spatial awareness, balance, flexibility, and body control. Starting from 18 months, children learn through structured play in a safe, padded environment.",
+    color: "from-[#6B2FA0] via-[#7c3aed] to-[#8B5CF6]",
+    tagColor: "bg-purple-900/20 text-purple-400 border-purple-900/30",
+    description: "Gymnastics at an early age builds incredible body awareness, flexibility, and strength. It also forms the physical foundation for every other sport a child might play later.",
     curriculum: [
-      "18m-2 years: Tumbling, rolling, basic balance beam walks",
-      "2-3 years: Forward rolls, cartwheel prep, hanging exercises",
-      "3-4 years: Cartwheel, handstand basics, balance sequences",
-      "4-5 years: Back rolls, handstand walking, vault introduction",
-      "5-7 years: Competitive routines, apparatus training, team exercises",
+      "Body awareness and tumbling",
+      "Balance beam basics",
+      "Forward and backward rolls",
+      "Cartwheel and handstand progression",
+      "Routine performance",
     ],
-    benefits: [
-      "Exceptional body awareness and control",
-      "Flexibility that lasts a lifetime",
-      "Core strength development",
-      "Improved coordination and agility",
-      "Discipline and focus",
-      "Injury prevention in other sports",
-    ],
-  },
-  {
-    name: "Chess",
-    emoji: "♟️",
-    age: "3 years+",
-    color: "from-[#3E2723] to-[#4E342E]",
-    bgLight: "bg-amber-50",
-    description:
-      "Chess is the ultimate brain sport. Our program teaches strategic thinking, patience, and problem-solving from age 3. Inspired by champions like Gukesh, we start building chess minds earlier.",
-    curriculum: [
-      "3-4 years: Piece recognition, board setup, basic moves",
-      "4-5 years: Capture rules, check, simple patterns",
-      "5-6 years: Opening principles, tactical puzzles, mini-games",
-      "6-7 years: Full games, tournament preparation, online practice",
-    ],
-    benefits: [
-      "Critical thinking and problem-solving",
-      "Improved concentration and patience",
-      "Pattern recognition abilities",
-      "Mathematical thinking",
-      "Emotional regulation (handling wins and losses)",
-      "Academic performance improvement",
-    ],
-  },
-  {
-    name: "Badminton",
-    emoji: "🏸",
-    age: "4 years+",
-    color: "from-[#2E7D32] to-[#43A047]",
-    bgLight: "bg-green-50",
-    description:
-      "Inspired by PV Sindhu's journey, our badminton program builds hand-eye coordination, agility, and competitive spirit. Starting from age 4 with modified equipment for small hands.",
-    curriculum: [
-      "4-5 years: Grip basics, hand-eye coordination games, shuttle tracking",
-      "5-6 years: Forehand/backhand basics, serving, court movement",
-      "6-7 years: Rally skills, match play, fitness drills",
-    ],
-    benefits: [
-      "Exceptional hand-eye coordination",
-      "Reflexes and reaction speed",
-      "Cardiovascular endurance",
-      "Agility and footwork",
-      "Social skills through doubles play",
-      "Competitive mindset development",
-    ],
-  },
-  {
-    name: "Cricket",
-    emoji: "🏏",
-    age: "4 years+",
-    color: "from-[#166534] to-[#15803d]",
-    bgLight: "bg-green-50",
-    description:
-      "Cricket is India's most loved sport. Our program introduces young children to the game through fun drills, soft ball practice, and age-appropriate batting and fielding exercises.",
-    curriculum: [
-      "4-5 years: Ball familiarization, catching drills, basic batting stance",
-      "5-6 years: Soft ball batting, underarm bowling, fielding basics",
-      "6-7 years: Overarm bowling, batting techniques, match play",
-      "7-10 years: Competitive formats, position-specific skills, team tactics",
-    ],
-    benefits: [
-      "Exceptional hand-eye coordination",
-      "Teamwork and communication skills",
-      "Physical fitness and stamina",
-      "Strategic thinking and game awareness",
-      "Discipline and focus under pressure",
-      "Social development through team sport",
-    ],
+    benefits: ["Flexibility & strength", "Body coordination", "Balance & posture", "Confidence building", "Foundation for all sports"],
+    priceRange: "₹3,000 – ₹5,000/mo",
   },
 ];
 
 export default function SportsPage() {
+  const [activeSport, setActiveSport] = useState(SPORTS[0].id);
+  const sport = SPORTS.find((s) => s.id === activeSport) ?? SPORTS[0];
+
   return (
-    <main className="pt-20 bg-cream">
+    <div className="min-h-screen bg-cream">
       {/* Hero */}
-      <section className="py-16 md:py-24 bg-navy">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-          >
-            <h1 className="font-nunito font-black text-4xl md:text-5xl lg:text-6xl text-white mb-4">
-              Our <span className="gradient-text">Sports Programs</span>
+      <div className="relative bg-navy pt-28 pb-12 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-orange/10 rounded-full blur-3xl animate-float-slow pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-aqua/8 rounded-full blur-3xl animate-float-medium pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <span className="inline-block bg-orange/10 border border-orange/20 text-orange font-poppins font-semibold text-sm px-4 py-1.5 rounded-full mb-4">
+              Sports Programs
+            </span>
+            <h1 className="font-nunito font-black text-4xl md:text-6xl text-white mb-4">
+              5 sports.{" "}
+              <span className="bg-gradient-to-r from-gold to-orange bg-clip-text text-transparent">
+                One platform.
+              </span>
             </h1>
-            <p className="text-white/60 font-poppins text-lg max-w-2xl mx-auto">
-              Chess, Swimming, Cricket, Badminton & Gymnastics — five disciplines,
-              one complete champion. Each sport taught by certified coaches using
-              age-appropriate methodologies.
+            <p className="font-lato text-white/55 text-lg max-w-xl mx-auto">
+              Every program is structured, coach-led, and age-appropriate. Choose the sport that excites your child.
             </p>
           </motion.div>
-        </div>
-      </section>
 
-      {/* Sports */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-20">
-        {sports.map((sport) => (
-          <SportDetail key={sport.name} sport={sport} />
-        ))}
-      </div>
-
-      {/* CTA */}
-      <section className="py-16 bg-navy text-center">
-        <div className="max-w-3xl mx-auto px-4">
-          <h2 className="font-nunito font-bold text-3xl text-white mb-4">
-            Ready to Start Your Child&apos;s Journey?
-          </h2>
-          <p className="text-white/60 mb-8 font-lato">
-            Every champion starts somewhere. Start here.
-          </p>
-          <Link
-            href="/#contact"
-            className="inline-block bg-gradient-to-r from-orange to-orange-hover text-white font-poppins font-bold px-10 py-4 rounded-full hover:shadow-lg hover:shadow-orange/30 hover:scale-105 active:scale-95 transition-all duration-300"
+          {/* Sport pill tabs */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="flex flex-wrap justify-center gap-3 mt-8"
           >
-            Enroll Your Champion
-          </Link>
-        </div>
-      </section>
-    </main>
-  );
-}
-
-function SportDetail({
-  sport,
-}: {
-  sport: (typeof sports)[0];
-}) {
-  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.15 });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 40 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6 }}
-      className={`${sport.bgLight} rounded-3xl p-8 md:p-12`}
-    >
-      <div className="flex items-center gap-4 mb-6">
-        <span className="text-5xl">{sport.emoji}</span>
-        <div>
-          <h2 className="font-nunito font-black text-3xl md:text-4xl text-navy">
-            {sport.name}
-          </h2>
-          <span className="text-orange font-poppins font-semibold text-sm">
-            Starting age: {sport.age}
-          </span>
+            {SPORTS.map((s) => (
+              <button
+                key={s.id}
+                onClick={() => setActiveSport(s.id)}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-poppins font-semibold text-sm transition-all duration-200 ${
+                  activeSport === s.id
+                    ? `bg-gradient-to-r ${s.color} text-white shadow-md`
+                    : "bg-white/10 text-white/60 hover:bg-white/15 border border-white/10"
+                }`}
+              >
+                <span>{s.emoji}</span>
+                {s.name}
+              </button>
+            ))}
+          </motion.div>
         </div>
       </div>
 
-      <p className="text-navy/70 font-lato text-base leading-relaxed mb-8">
-        {sport.description}
-      </p>
+      {/* Sport detail */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <motion.div
+          key={activeSport}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          {/* Sport banner */}
+          <div className={`relative h-48 bg-gradient-to-br ${sport.color} rounded-3xl overflow-hidden mb-8`}>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-[120px] opacity-15 select-none">{sport.emoji}</span>
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+            <div className="absolute bottom-5 left-6 right-6 flex items-end justify-between">
+              <div>
+                <h2 className="font-nunito font-black text-4xl text-white">{sport.name}</h2>
+                <p className="font-lato text-white/70 text-sm">Age {sport.age}</p>
+              </div>
+              <div className="text-right">
+                <p className="font-lato text-white/60 text-xs">Starts from</p>
+                <p className="font-bebas text-2xl text-white">{sport.priceRange}</p>
+              </div>
+            </div>
+          </div>
 
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Curriculum */}
-        <div>
-          <h3 className="font-poppins font-bold text-lg text-navy mb-4">
-            📋 Curriculum Path
-          </h3>
-          <ul className="space-y-3">
-            {sport.curriculum.map((item, j) => (
-              <li
-                key={j}
-                className="flex items-start gap-3 text-navy/70 font-lato text-sm"
-              >
-                <div
-                  className={`w-2 h-2 rounded-full bg-gradient-to-r ${sport.color} mt-1.5 flex-shrink-0`}
-                />
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Description + curriculum */}
+            <div className="md:col-span-2 space-y-5">
+              <div className="bg-white border border-cream-dark rounded-2xl p-6 shadow-sm">
+                <p className="font-lato text-navy/70 text-base leading-relaxed">{sport.description}</p>
+              </div>
 
-        {/* Benefits */}
-        <div>
-          <h3 className="font-poppins font-bold text-lg text-navy mb-4">
-            ✅ Key Benefits
-          </h3>
-          <ul className="space-y-3">
-            {sport.benefits.map((benefit, j) => (
-              <li
-                key={j}
-                className="flex items-start gap-3 text-navy/70 font-lato text-sm"
-              >
-                <span className="text-green-500 mt-0.5 flex-shrink-0">✓</span>
-                {benefit}
-              </li>
-            ))}
-          </ul>
-        </div>
+              <div className="bg-white border border-cream-dark rounded-2xl p-6 shadow-sm">
+                <h3 className="font-nunito font-bold text-navy text-lg mb-4">Curriculum Pathway</h3>
+                <div className="space-y-3">
+                  {sport.curriculum.map((step, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <div className={`w-7 h-7 bg-gradient-to-br ${sport.color} rounded-full flex items-center justify-center text-white font-bebas text-sm shrink-0`}>
+                        {i + 1}
+                      </div>
+                      <span className="font-lato text-navy/70 text-base">{step}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Benefits + CTA */}
+            <div className="space-y-5">
+              <div className="bg-white border border-cream-dark rounded-2xl p-6 shadow-sm">
+                <h3 className="font-nunito font-bold text-navy text-lg mb-4">Benefits</h3>
+                <div className="space-y-2.5">
+                  {sport.benefits.map((benefit, i) => (
+                    <div key={i} className="flex items-center gap-2.5">
+                      <div className="w-5 h-5 bg-green-50 rounded-full flex items-center justify-center shrink-0">
+                        <Check size={11} className="text-green-500" />
+                      </div>
+                      <span className="font-lato text-navy/70 text-sm">{benefit}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-navy to-navy-light border border-white/10 rounded-2xl p-5">
+                <p className="font-poppins font-semibold text-white text-base mb-1">Ready to start?</p>
+                <p className="font-lato text-white/50 text-sm mb-4">Book a free trial session. No commitment required.</p>
+                <Link href="/discover">
+                  <button className="w-full bg-gradient-to-r from-orange to-orange-hover text-white font-poppins font-semibold text-sm py-3 rounded-full hover:shadow-lg hover:shadow-orange/30 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2">
+                    Find {sport.name} Academies <ArrowRight size={15} />
+                  </button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </div>
-    </motion.div>
+    </div>
   );
 }

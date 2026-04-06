@@ -1,96 +1,88 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useInView } from "react-intersection-observer";
-import {
-  Shield,
-  Users,
-  Sparkles,
-  BadgeCheck,
-  Heart,
-  Eye,
-} from "lucide-react";
+import { ShieldCheck, Lock, CreditCard, Eye } from "lucide-react";
 
-const safetyFeatures = [
+const PILLARS = [
   {
-    icon: BadgeCheck,
-    title: "Certified Coaches",
-    description: "Every coach is qualified with international certifications and undergoes thorough background verification.",
+    icon: ShieldCheck,
+    iconBg: "bg-aqua/20",
+    iconColor: "text-aqua",
+    title: "Coach Verification",
+    body: "48-hour background and certification check before any coach goes live. ID verification, police clearance, and qualification review.",
   },
   {
-    icon: Users,
-    title: "Safe Ratios",
-    description: "Strict child-to-coach ratios — never more than 4 children per coach for water activities.",
+    icon: Lock,
+    iconBg: "bg-aqua/20",
+    iconColor: "text-aqua",
+    title: "Child Data Privacy",
+    body: "DPDP Act 2023 compliant. Medical notes visible only to the assigned coach. No data sold. No ads.",
   },
   {
-    icon: Sparkles,
-    title: "Hygienic Facilities",
-    description: "Hospital-grade sanitation protocols. UV-treated pools. Cleaned and inspected before every session.",
-  },
-  {
-    icon: Shield,
-    title: "Insurance Coverage",
-    description: "Comprehensive insurance for every enrolled child, covering all activities and sessions.",
+    icon: CreditCard,
+    iconBg: "bg-aqua/20",
+    iconColor: "text-aqua",
+    title: "Secure Payments",
+    body: "Razorpay PCI-DSS Level 1 certified. We never store card data. Every transaction is encrypted end-to-end.",
   },
   {
     icon: Eye,
-    title: "Parent Present Policy",
-    description: "For children under 18 months, a parent must be present during all sessions. Always welcome to observe.",
-  },
-  {
-    icon: Heart,
-    title: "First Aid Ready",
-    description: "Trained first-aid personnel on-site at every location. AED machines and emergency protocols in place.",
+    iconBg: "bg-aqua/20",
+    iconColor: "text-aqua",
+    title: "Community Standards",
+    body: "Strict code of conduct for coaches and academies. Instant suspension on violations. Parent feedback reviewed within 24 hours.",
   },
 ];
 
 export default function TrustSafety() {
-  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.15 });
-
   return (
-    <section id="safety" className="relative py-20 md:py-32 bg-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" ref={ref}>
+    <section className="relative bg-navy py-24 overflow-hidden">
+      {/* Ambient blobs */}
+      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-orange/10 rounded-full blur-3xl animate-float-slow pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-aqua/8 rounded-full blur-3xl animate-float-medium pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7 }}
-          className="text-center mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="flex flex-col items-center text-center mb-14"
         >
-          <span className="inline-block bg-green-100 text-green-700 font-poppins font-semibold text-sm px-4 py-1.5 rounded-full mb-4">
+          <span className="inline-block bg-aqua/10 border border-aqua/20 text-aqua font-poppins font-semibold text-sm px-4 py-1.5 rounded-full mb-4">
             Safety First
           </span>
-          <h2 className="font-nunito font-black text-3xl md:text-4xl lg:text-5xl text-navy leading-tight mb-4">
-            Your Baby&apos;s Safety is{" "}
-            <span className="text-green-600">Our First Championship.</span>
+          <h2 className="font-nunito font-black text-4xl md:text-5xl text-white leading-tight max-w-2xl">
+            Every step taken to{" "}
+            <span className="bg-gradient-to-r from-aqua to-gold bg-clip-text text-transparent">
+              protect your child
+            </span>
           </h2>
-          <p className="text-navy/60 font-poppins text-lg max-w-2xl mx-auto">
-            We know trust is earned. Here&apos;s how we earn yours, every single day.
+          <p className="font-lato text-white/50 text-lg mt-4 max-w-xl leading-relaxed">
+            Your child&apos;s safety is not a feature. It&apos;s the foundation everything is built on.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {safetyFeatures.map((feature, i) => {
-            const Icon = feature.icon;
-            return (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="bg-cream rounded-2xl p-6 border border-navy/5 hover:shadow-lg transition-all duration-300"
-              >
-                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
-                  <Icon className="text-green-600" size={24} />
-                </div>
-                <h3 className="font-poppins font-semibold text-lg text-navy mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-navy/60 font-lato text-sm leading-relaxed">
-                  {feature.description}
-                </p>
-              </motion.div>
-            );
-          })}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {PILLARS.map((pillar, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: i * 0.1 }}
+              whileHover={{ y: -4 }}
+              className="bg-navy-light border border-white/10 rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300"
+            >
+              <div className={`w-12 h-12 ${pillar.iconBg} border border-aqua/20 rounded-xl flex items-center justify-center`}>
+                <pillar.icon size={22} className={pillar.iconColor} />
+              </div>
+              <div>
+                <h3 className="font-nunito font-bold text-white text-base mb-2">{pillar.title}</h3>
+                <p className="font-lato text-white/50 text-sm leading-relaxed">{pillar.body}</p>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

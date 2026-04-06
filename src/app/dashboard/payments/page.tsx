@@ -1,15 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ChevronLeft, Download, Pause, X, CreditCard, AlertCircle } from "lucide-react";
+import { ChevronLeft, Download, Pause, CreditCard, IndianRupee, Calendar, TrendingUp } from "lucide-react";
 import Link from "next/link";
 
 const SUBSCRIPTIONS = [
   {
     id: "sub1",
-    academy: "Delhi Football Academy",
-    sport: "Football",
-    icon: "⚽",
+    academy: "Champions Cricket Club",
+    sport: "Cricket",
+    sportColor: "bg-green-500",
+    icon: "🏏",
     child: "Aryan",
     amount: 3000,
     nextRenewal: "May 1, 2026",
@@ -19,6 +20,7 @@ const SUBSCRIPTIONS = [
     id: "sub2",
     academy: "SwimStar Noida",
     sport: "Swimming",
+    sportColor: "bg-aqua",
     icon: "🏊",
     child: "Meera",
     amount: 3500,
@@ -28,70 +30,76 @@ const SUBSCRIPTIONS = [
 ];
 
 const TRANSACTIONS = [
-  { id: "t1", date: "Apr 1, 2026", description: "Football - Monthly (Apr)", amount: 3000, status: "paid", receipt: true },
+  { id: "t1", date: "Apr 1, 2026", description: "Cricket - Monthly (Apr)", amount: 3000, status: "paid", receipt: true },
   { id: "t2", date: "Apr 1, 2026", description: "Swimming - Monthly (Apr)", amount: 3500, status: "paid", receipt: true },
-  { id: "t3", date: "Mar 12, 2026", description: "Football - Trial Booking", amount: 236, status: "paid", receipt: true },
-  { id: "t4", date: "Mar 1, 2026", description: "Football - Monthly (Mar)", amount: 3000, status: "paid", receipt: true },
+  { id: "t3", date: "Mar 12, 2026", description: "Cricket - Trial Booking", amount: 236, status: "paid", receipt: true },
+  { id: "t4", date: "Mar 1, 2026", description: "Cricket - Monthly (Mar)", amount: 3000, status: "paid", receipt: true },
   { id: "t5", date: "Mar 1, 2026", description: "Swimming - Monthly (Mar)", amount: 3500, status: "paid", receipt: true },
   { id: "t6", date: "Feb 15, 2026", description: "Gymnastics - Trial Booking", amount: 200, status: "refunded", receipt: true },
-  { id: "t7", date: "Feb 1, 2026", description: "Football - Monthly (Feb)", amount: 3000, status: "paid", receipt: true },
-  { id: "t8", date: "Jan 28, 2026", description: "Cricket Trial - Pending", amount: 236, status: "pending", receipt: false },
+  { id: "t7", date: "Feb 1, 2026", description: "Cricket - Monthly (Feb)", amount: 3000, status: "paid", receipt: true },
+  { id: "t8", date: "Jan 28, 2026", description: "Chess Trial - Pending", amount: 236, status: "pending", receipt: false },
 ];
 
-const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  paid: { bg: "bg-green-100", text: "text-green-700", label: "Paid" },
-  refunded: { bg: "bg-blue-100", text: "text-blue-700", label: "Refunded" },
-  pending: { bg: "bg-amber-100", text: "text-amber-700", label: "Pending" },
+const STATUS_CONFIG: Record<string, { bg: string; text: string; label: string }> = {
+  paid: { bg: "bg-green-50", text: "text-green-600", label: "Paid" },
+  refunded: { bg: "bg-blue-50", text: "text-blue-600", label: "Refunded" },
+  pending: { bg: "bg-amber-50", text: "text-amber-600", label: "Pending" },
 };
 
-const totalSpentThisYear = TRANSACTIONS.filter((t) => t.status === "paid" && t.date.includes("2026")).reduce(
-  (sum, t) => sum + t.amount,
-  0
-);
+const totalSpent = TRANSACTIONS
+  .filter((t) => t.status === "paid")
+  .reduce((sum, t) => sum + t.amount, 0);
+
+const nextPayment = SUBSCRIPTIONS.reduce((sum, s) => sum + s.amount, 0);
 
 export default function PaymentsPage() {
   return (
-    <div className="min-h-screen bg-cream pt-20 pb-10">
+    <div className="min-h-screen bg-cream pb-12">
       {/* Header */}
-      <div className="bg-navy py-8 px-4">
-        <div className="max-w-4xl mx-auto">
-          <Link href="/dashboard">
-            <button className="flex items-center gap-1.5 text-white/50 font-poppins text-sm mb-5 hover:text-white transition-colors">
-              <ChevronLeft size={16} /> Back to Dashboard
-            </button>
+      <div className="relative bg-navy pt-24 pb-10 px-4 overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gold/8 rounded-full blur-3xl pointer-events-none" />
+        <div className="max-w-4xl mx-auto relative z-10">
+          <Link href="/dashboard" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors mb-6 w-fit">
+            <ChevronLeft size={18} />
+            <span className="font-poppins text-sm">Dashboard</span>
           </Link>
 
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-            <h1 className="font-nunito font-black text-2xl text-white mb-1">Payment History</h1>
-            <p className="text-white/50 font-lato text-sm">Manage subscriptions and view transactions</p>
-          </motion.div>
+          <h1 className="font-nunito font-black text-3xl text-white mb-6">Payments & Billing</h1>
 
-          {/* Stat */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="mt-5 bg-white/10 rounded-2xl p-4 flex items-center gap-4"
-          >
-            <div className="w-12 h-12 bg-gradient-to-br from-orange to-gold rounded-2xl flex items-center justify-center shadow-lg">
-              <CreditCard size={22} className="text-white" />
-            </div>
-            <div>
-              <p className="text-white/50 font-lato text-xs">Total spent in 2026</p>
-              <p className="font-nunito font-black text-3xl text-white">
-                ₹{totalSpentThisYear.toLocaleString("en-IN")}
-              </p>
-            </div>
-          </motion.div>
+          {/* Summary banner */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {[
+              { label: "Total Spent (2026)", value: `₹${totalSpent.toLocaleString()}`, icon: IndianRupee, color: "text-gold" },
+              { label: "Active Subscriptions", value: String(SUBSCRIPTIONS.length), icon: Calendar, color: "text-aqua" },
+              { label: "Next Payment", value: `₹${nextPayment.toLocaleString()}`, icon: TrendingUp, color: "text-orange" },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.08 }}
+                className="bg-white/8 border border-white/10 rounded-2xl p-4 flex items-center gap-3"
+              >
+                <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
+                  <item.icon size={18} className={item.color} />
+                </div>
+                <div>
+                  <p className="font-poppins text-white/40 text-xs">{item.label}</p>
+                  <p className={`font-bebas text-2xl tracking-wide ${item.color}`}>{item.value}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 mt-6 space-y-8">
-        {/* Active Subscriptions */}
+      <div className="max-w-4xl mx-auto px-4 mt-8 space-y-8">
+        {/* Active subscriptions */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
         >
           <h2 className="font-nunito font-bold text-navy text-xl mb-4">Active Subscriptions</h2>
           <div className="space-y-3">
@@ -101,115 +109,115 @@ export default function PaymentsPage() {
                 initial={{ opacity: 0, x: -10 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-white border border-cream-dark rounded-2xl p-5 shadow-sm"
+                transition={{ delay: i * 0.08 }}
+                className="bg-white border border-cream-dark rounded-2xl p-5 flex items-center gap-4 shadow-sm"
               >
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-orange/20 to-gold/10 rounded-2xl flex items-center justify-center text-2xl shrink-0">
-                    {sub.icon}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="font-nunito font-bold text-navy">{sub.academy}</p>
-                        <p className="text-navy/50 font-lato text-xs">{sub.sport} · {sub.child}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-nunito font-bold text-navy text-lg">₹{sub.amount.toLocaleString()}</p>
-                        <p className="text-navy/40 font-lato text-xs">/month</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between mt-3">
-                      <p className="text-navy/50 font-lato text-xs">
-                        Renews: <span className="text-orange font-poppins font-medium">{sub.nextRenewal}</span>
-                      </p>
-                      <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-1 text-navy/40 font-poppins text-xs hover:text-amber-500 transition-colors">
-                          <Pause size={12} /> Pause
-                        </button>
-                        <button className="flex items-center gap-1 text-navy/40 font-poppins text-xs hover:text-red-500 transition-colors">
-                          <X size={12} /> Cancel
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                {/* Sport accent stripe */}
+                <div className={`w-1 h-12 ${sub.sportColor} rounded-full shrink-0`} />
+
+                <div className="text-3xl">{sub.icon}</div>
+
+                <div className="flex-1 min-w-0">
+                  <p className="font-nunito font-bold text-navy text-base truncate">{sub.academy}</p>
+                  <p className="font-lato text-navy/50 text-sm">{sub.child} · Renews {sub.nextRenewal}</p>
+                </div>
+
+                <div className="text-right shrink-0">
+                  <p className="font-bebas text-2xl text-navy tracking-wide">₹{sub.amount.toLocaleString()}</p>
+                  <p className="font-lato text-navy/40 text-xs">/month</p>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="bg-green-50 text-green-600 font-poppins font-semibold text-xs px-2.5 py-1 rounded-full">
+                    Active
+                  </span>
+                  <button className="w-8 h-8 bg-cream rounded-lg flex items-center justify-center hover:bg-cream-dark transition-colors">
+                    <Pause size={14} className="text-navy/50" />
+                  </button>
                 </div>
               </motion.div>
             ))}
           </div>
         </motion.section>
 
-        {/* Transaction History */}
+        {/* Transaction history */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
         >
-          <h2 className="font-nunito font-bold text-navy text-xl mb-4">Transaction History</h2>
-          {TRANSACTIONS.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center bg-white border border-cream-dark rounded-2xl">
-              <AlertCircle size={40} className="text-navy/20 mb-3" />
-              <p className="font-nunito font-bold text-navy/40 text-lg">No transactions yet</p>
-              <p className="text-navy/30 font-lato text-sm mt-1">Your payment history will appear here</p>
-            </div>
-          ) : (
-            <div className="bg-white border border-cream-dark rounded-2xl shadow-sm overflow-hidden">
-              {/* Table header — hidden on mobile */}
-              <div className="hidden sm:grid grid-cols-5 gap-4 px-5 py-3 bg-cream-dark text-navy/50 font-poppins text-xs font-medium uppercase tracking-wide">
-                <span className="col-span-1">Date</span>
-                <span className="col-span-2">Description</span>
-                <span className="col-span-1 text-right">Amount</span>
-                <span className="col-span-1 text-center">Status</span>
-              </div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-nunito font-bold text-navy text-xl">Transaction History</h2>
+            <button className="flex items-center gap-1.5 text-orange font-poppins text-sm hover:text-orange-hover transition-colors">
+              <Download size={14} />
+              Export
+            </button>
+          </div>
 
-              {TRANSACTIONS.map((tx, i) => (
+          <div className="bg-white border border-cream-dark rounded-2xl overflow-hidden shadow-sm">
+            {/* Header */}
+            <div className="grid grid-cols-12 px-5 py-3 bg-cream border-b border-cream-dark">
+              <span className="col-span-2 font-poppins font-semibold text-navy/50 text-xs uppercase tracking-wide">Date</span>
+              <span className="col-span-6 font-poppins font-semibold text-navy/50 text-xs uppercase tracking-wide">Description</span>
+              <span className="col-span-2 font-poppins font-semibold text-navy/50 text-xs uppercase tracking-wide text-right">Amount</span>
+              <span className="col-span-2 font-poppins font-semibold text-navy/50 text-xs uppercase tracking-wide text-right">Status</span>
+            </div>
+
+            {TRANSACTIONS.map((txn, i) => {
+              const status = STATUS_CONFIG[txn.status] ?? STATUS_CONFIG.pending;
+              return (
                 <motion.div
-                  key={tx.id}
-                  initial={{ opacity: 0, y: 5 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  key={txn.id}
+                  initial={{ opacity: 0, x: -5 }}
+                  whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.05 }}
-                  className={`flex flex-col sm:grid sm:grid-cols-5 gap-2 sm:gap-4 px-5 py-4 ${
+                  className={`grid grid-cols-12 px-5 py-4 items-center ${
                     i < TRANSACTIONS.length - 1 ? "border-b border-cream-dark" : ""
                   } hover:bg-cream/50 transition-colors`}
                 >
-                  {/* Date */}
-                  <span className="text-navy/50 font-lato text-xs col-span-1">{tx.date}</span>
-
-                  {/* Description */}
-                  <div className="col-span-2">
-                    <p className="font-poppins font-medium text-navy text-sm">{tx.description}</p>
-                  </div>
-
-                  {/* Amount */}
-                  <div className="col-span-1 sm:text-right flex items-center sm:justify-end gap-3">
-                    <span className="font-nunito font-bold text-navy text-sm">
-                      {tx.status === "refunded" && "-"}₹{tx.amount.toLocaleString()}
+                  <span className="col-span-2 font-lato text-navy/50 text-xs">{txn.date}</span>
+                  <span className="col-span-6 font-lato text-navy text-sm">{txn.description}</span>
+                  <span className={`col-span-2 font-bebas text-lg tracking-wide text-right ${
+                    txn.status === "refunded" ? "text-blue-500" : "text-navy"
+                  }`}>
+                    {txn.status === "refunded" ? "-" : ""}₹{txn.amount.toLocaleString()}
+                  </span>
+                  <div className="col-span-2 flex items-center justify-end gap-1.5">
+                    <span className={`${status.bg} ${status.text} font-poppins font-semibold text-xs px-2.5 py-0.5 rounded-full`}>
+                      {status.label}
                     </span>
-                    {tx.receipt && (
-                      <button className="text-orange/60 hover:text-orange transition-colors sm:hidden">
-                        <Download size={14} />
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Status + receipt */}
-                  <div className="col-span-1 flex items-center justify-between sm:justify-center gap-2">
-                    <span
-                      className={`${STATUS_STYLES[tx.status].bg} ${STATUS_STYLES[tx.status].text} text-xs font-poppins font-semibold px-2.5 py-1 rounded-full`}
-                    >
-                      {STATUS_STYLES[tx.status].label}
-                    </span>
-                    {tx.receipt && (
-                      <button className="hidden sm:block text-orange/60 hover:text-orange transition-colors">
-                        <Download size={14} />
+                    {txn.receipt && (
+                      <button className="w-6 h-6 bg-cream rounded flex items-center justify-center hover:bg-cream-dark transition-colors">
+                        <Download size={11} className="text-navy/40" />
                       </button>
                     )}
                   </div>
                 </motion.div>
-              ))}
+              );
+            })}
+          </div>
+        </motion.section>
+
+        {/* Saved card */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          <h2 className="font-nunito font-bold text-navy text-xl mb-4">Payment Method</h2>
+          <div className="bg-gradient-to-br from-navy to-navy-light border border-white/10 rounded-2xl p-5 flex items-center gap-4">
+            <CreditCard size={24} className="text-white/60" />
+            <div>
+              <p className="font-poppins font-semibold text-white text-sm">Visa ending in •••• 4242</p>
+              <p className="font-lato text-white/40 text-xs">Expires 09/28 · Powered by Razorpay</p>
             </div>
-          )}
+            <button className="ml-auto text-orange font-poppins text-sm font-semibold hover:text-orange-hover transition-colors">
+              Change
+            </button>
+          </div>
         </motion.section>
       </div>
     </div>

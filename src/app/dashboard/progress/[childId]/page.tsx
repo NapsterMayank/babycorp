@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Download, ChevronLeft, TrendingUp, Lock } from "lucide-react";
+import { Download, ChevronLeft, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import SkillBar from "@/components/ui/SkillBar";
 import Badge from "@/components/ui/Badge";
@@ -10,7 +10,8 @@ import Badge from "@/components/ui/Badge";
 const CHILD = {
   name: "Aryan",
   age: 8,
-  sports: ["Football", "Cricket"],
+  sports: ["Cricket", "Chess"],
+  overallScore: 72,
   initial: "A",
 };
 
@@ -19,195 +20,220 @@ const SPORT_DATA: Record<string, {
   benchmarkMin: number;
   benchmarkMax: number;
   childPos: number;
+  coachNotes: string[];
 }> = {
-  Football: {
-    skills: [
-      { name: "Ball Control", score: 72, delta: 8 },
-      { name: "Dribbling", score: 65, delta: 5 },
-      { name: "Passing", score: 78, delta: 10 },
-      { name: "Shooting", score: 58, delta: 3 },
-      { name: "Stamina", score: 80, delta: 12 },
-      { name: "Team Play", score: 85, delta: 7 },
-    ],
-    benchmarkMin: 55,
-    benchmarkMax: 80,
-    childPos: 72,
-  },
   Cricket: {
     skills: [
-      { name: "Batting Stance", score: 45, delta: -2 },
+      { name: "Batting Stance", score: 68, delta: 8 },
       { name: "Bowling Grip", score: 52, delta: 4 },
-      { name: "Fielding", score: 68, delta: 6 },
+      { name: "Fielding", score: 75, delta: 10 },
       { name: "Running Between Wickets", score: 60, delta: 3 },
-      { name: "Cricket IQ", score: 55, delta: 8 },
+      { name: "Cricket IQ", score: 65, delta: 8 },
     ],
-    benchmarkMin: 45,
-    benchmarkMax: 70,
-    childPos: 55,
+    benchmarkMin: 50,
+    benchmarkMax: 75,
+    childPos: 64,
+    coachNotes: [
+      "Aryan has shown excellent improvement in fielding this month. His footwork is becoming much more natural.",
+      "Batting stance needs more attention — we&apos;re working on keeping the front elbow up.",
+    ],
+  },
+  Chess: {
+    skills: [
+      { name: "Opening Knowledge", score: 45, delta: 5 },
+      { name: "Tactical Vision", score: 58, delta: 10 },
+      { name: "Endgame Technique", score: 38, delta: 3 },
+      { name: "Time Management", score: 55, delta: -2 },
+      { name: "Focus & Patience", score: 72, delta: 7 },
+    ],
+    benchmarkMin: 40,
+    benchmarkMax: 65,
+    childPos: 54,
+    coachNotes: [
+      "Aryan is a natural chess player — quick pattern recognition. We&apos;re focusing on endgame technique now.",
+      "Recommend practicing puzzles daily for 15 minutes to sharpen tactical vision.",
+    ],
   },
 };
 
 const BADGES = [
-  { name: "First Goal!", icon: "⚽", description: "Scored first goal", earned: true, date: "Apr 6, 2026" },
-  { name: "Hat Trick Hero", icon: "🎩", description: "3 goals in one session", earned: false },
+  { name: "First Boundary!", icon: "🏏", description: "Hit first boundary in practice", earned: true, date: "Apr 6, 2026" },
+  { name: "Hat Trick Hero", icon: "🎩", description: "3 wickets in one session", earned: false },
   { name: "10-Day Streak", icon: "🔥", description: "10 sessions in a row", earned: true, date: "Mar 28, 2026" },
   { name: "30-Day Streak", icon: "💎", description: "30 sessions in a row", earned: false },
   { name: "Level Up", icon: "⭐", description: "Moved to next batch level", earned: true, date: "Mar 20, 2026" },
   { name: "Team Captain", icon: "👑", description: "Named session captain", earned: false },
-  { name: "Sharp Shooter", icon: "🎯", description: "Shooting score > 80", earned: false },
-  { name: "Speedster", icon: "⚡", description: "Stamina score > 85", earned: true, date: "Apr 1, 2026" },
-];
-
-const COACH_NOTES = [
-  {
-    id: 1,
-    coach: "Rahul Mehra",
-    initial: "R",
-    date: "Apr 5, 2026",
-    note: "Aryan showed great improvement in passing this session. His left foot is getting stronger. Focus on shooting accuracy next week.",
-  },
-  {
-    id: 2,
-    coach: "Rahul Mehra",
-    initial: "R",
-    date: "Mar 29, 2026",
-    note: "Excellent stamina and team play. Aryan was the best performer in the small-sided game. Keep up the great work!",
-  },
-  {
-    id: 3,
-    coach: "Rahul Mehra",
-    initial: "R",
-    date: "Mar 22, 2026",
-    note: "Needs to work on ball control under pressure. Dribbling technique improving steadily. Recommend extra practice at home.",
-  },
+  { name: "Speedster", icon: "⚡", description: "Stamina score &gt; 85", earned: true, date: "Apr 1, 2026" },
+  { name: "Chess Master", icon: "♟️", description: "Win 10 practice games", earned: false },
 ];
 
 export default function ProgressPage() {
-  const [activeSport, setActiveSport] = useState("Football");
+  const [activeSport, setActiveSport] = useState(CHILD.sports[0]);
+  const data = SPORT_DATA[activeSport];
 
-  const sportData = SPORT_DATA[activeSport];
+  const SPORT_COLORS: Record<string, string> = {
+    Cricket: "from-[#1a3a1a] to-[#15803d]",
+    Chess: "from-[#3E2723] to-[#6D4C41]",
+    Swimming: "from-[#006994] to-[#00C2CB]",
+    Badminton: "from-[#166534] to-[#22c55e]",
+    Gymnastics: "from-[#6B2FA0] to-[#8B5CF6]",
+  };
+
+  const SPORT_EMOJI: Record<string, string> = {
+    Cricket: "🏏",
+    Chess: "♟️",
+    Swimming: "🏊",
+    Badminton: "🏸",
+    Gymnastics: "🤸",
+  };
+
+  if (!data) return null;
 
   return (
-    <div className="min-h-screen bg-cream pt-20 pb-10">
+    <div className="min-h-screen bg-cream pb-12">
       {/* Header */}
-      <div className="bg-navy py-8 px-4">
-        <div className="max-w-4xl mx-auto">
-          <Link href="/dashboard">
-            <button className="flex items-center gap-1.5 text-white/50 font-poppins text-sm mb-5 hover:text-white transition-colors">
-              <ChevronLeft size={16} /> Back to Dashboard
-            </button>
+      <div className="relative bg-navy pt-24 pb-10 px-4 overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-orange/8 rounded-full blur-3xl pointer-events-none" />
+        <div className="max-w-4xl mx-auto relative z-10">
+          <Link href="/dashboard" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors mb-6 w-fit">
+            <ChevronLeft size={18} />
+            <span className="font-poppins text-sm">Dashboard</span>
           </Link>
 
-          <div className="flex items-center gap-4">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 200 }}
-              className="w-16 h-16 bg-gradient-to-br from-orange to-gold rounded-2xl flex items-center justify-center text-white font-nunito font-black text-2xl shadow-xl shadow-orange/30"
-            >
-              {CHILD.initial}
-            </motion.div>
-            <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
-              <h1 className="font-nunito font-black text-2xl text-white">{CHILD.name}'s Progress</h1>
-              <p className="text-white/50 font-lato text-sm">{CHILD.age} years old</p>
-              <div className="flex gap-2 mt-1.5">
-                {CHILD.sports.map((s) => (
-                  <span key={s} className="bg-orange/20 text-orange text-xs font-poppins px-2.5 py-0.5 rounded-full">
-                    {s}
-                  </span>
-                ))}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+            {/* Avatar */}
+            <div className="relative">
+              <div className="w-20 h-20 bg-gradient-to-br from-orange to-gold rounded-2xl flex items-center justify-center font-nunito font-black text-4xl text-white shadow-xl shadow-orange/30">
+                {CHILD.initial}
               </div>
-            </motion.div>
+              <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-aqua rounded-full border-2 border-navy flex items-center justify-center">
+                <span className="text-xs">✓</span>
+              </div>
+            </div>
+
+            <div className="flex-1">
+              <h1 className="font-nunito font-black text-3xl text-white">{CHILD.name} Sharma</h1>
+              <p className="font-lato text-white/50 text-sm">{CHILD.age} years old · {CHILD.sports.join(" & ")}</p>
+            </div>
+
+            {/* Overall score circle */}
+            <div className="flex flex-col items-center">
+              <div className="relative w-20 h-20">
+                <svg className="w-20 h-20 -rotate-90" viewBox="0 0 72 72">
+                  <circle cx="36" cy="36" r="28" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="6" />
+                  <circle
+                    cx="36" cy="36" r="28"
+                    fill="none"
+                    stroke="#FF6B35"
+                    strokeWidth="6"
+                    strokeDasharray={`${(CHILD.overallScore / 100) * 175.9} 175.9`}
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="font-bebas text-3xl text-white leading-none">{CHILD.overallScore}</span>
+                  <span className="font-lato text-white/40 text-[9px]">Score</span>
+                </div>
+              </div>
+            </div>
+
+            <button className="flex items-center gap-2 bg-white/10 border border-white/10 text-white font-poppins font-semibold text-sm px-4 py-2.5 rounded-full hover:bg-white/15 transition-colors">
+              <Download size={15} />
+              PDF Report
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 mt-6 space-y-6">
-        {/* Sport selector */}
-        <div className="flex gap-2">
+      <div className="max-w-4xl mx-auto px-4 mt-8 space-y-8">
+        {/* Sport tabs */}
+        <div className="flex gap-2 flex-wrap">
           {CHILD.sports.map((sport) => (
             <button
               key={sport}
               onClick={() => setActiveSport(sport)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-poppins font-semibold text-sm transition-all ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full font-poppins font-semibold text-sm transition-all duration-200 ${
                 activeSport === sport
-                  ? "bg-gradient-to-r from-orange to-orange-hover text-white shadow-lg shadow-orange/30"
+                  ? `bg-gradient-to-r ${SPORT_COLORS[sport] ?? "from-orange to-orange-hover"} text-white shadow-md`
                   : "bg-white border border-cream-dark text-navy/60 hover:border-orange/30"
               }`}
             >
-              {sport === "Football" ? "⚽" : "🏏"} {sport}
+              <span>{SPORT_EMOJI[sport]}</span>
+              {sport}
             </button>
           ))}
         </div>
 
-        {/* Skills */}
+        {/* Skills section */}
         <motion.div
           key={activeSport}
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-navy rounded-2xl p-5"
+          transition={{ duration: 0.4 }}
+          className="bg-white border border-cream-dark rounded-3xl p-6 shadow-sm"
         >
-          <div className="flex items-center gap-2 mb-5">
-            <TrendingUp size={18} className="text-orange" />
-            <h2 className="font-nunito font-bold text-white text-lg">Skill Assessment</h2>
-          </div>
+          <h2 className="font-nunito font-bold text-navy text-xl mb-6 flex items-center gap-2">
+            {SPORT_EMOJI[activeSport]} {activeSport} — Skill Breakdown
+          </h2>
           <div className="space-y-5">
-            {sportData.skills.map((skill, i) => (
-              <motion.div
-                key={skill.name}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.07 }}
-              >
-                <SkillBar skill={skill.name} score={skill.score} delta={skill.delta} />
-              </motion.div>
+            {data.skills.map((skill) => (
+              <SkillBar key={skill.name} skill={skill.name} score={skill.score} delta={skill.delta} variant="light" />
             ))}
           </div>
-        </motion.div>
 
-        {/* Benchmark */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="bg-white border border-cream-dark rounded-2xl p-5 shadow-sm"
-        >
-          <h2 className="font-nunito font-bold text-navy text-lg mb-4">vs. Age Group Benchmark</h2>
-          <p className="text-navy/50 font-lato text-xs mb-4">
-            How {CHILD.name} compares to other {CHILD.age}-year-olds playing {activeSport}
-          </p>
-
-          <div className="relative">
-            <div className="h-6 bg-cream-dark rounded-full overflow-hidden relative">
+          {/* Benchmark bar */}
+          <div className="mt-8 p-4 bg-cream rounded-2xl">
+            <p className="font-poppins font-semibold text-navy/60 text-sm mb-3">Peer Benchmark</p>
+            <div className="relative h-4 bg-cream-dark rounded-full overflow-hidden">
               {/* Benchmark range */}
               <div
-                className="absolute h-full bg-aqua/30 rounded-full"
-                style={{
-                  left: `${sportData.benchmarkMin}%`,
-                  width: `${sportData.benchmarkMax - sportData.benchmarkMin}%`,
-                }}
+                className="absolute top-0 h-full bg-blue-100 rounded-full"
+                style={{ left: `${data.benchmarkMin}%`, width: `${data.benchmarkMax - data.benchmarkMin}%` }}
               />
               {/* Child position */}
               <motion.div
-                initial={{ left: "0%" }}
-                whileInView={{ left: `${sportData.childPos}%` }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 bg-orange rounded-full border-2 border-white shadow-lg shadow-orange/40"
-                style={{ left: `${sportData.childPos}%` }}
+                className="absolute top-0 w-4 h-4 bg-orange rounded-full border-2 border-white shadow-md"
+                initial={{ left: 0 }}
+                animate={{ left: `calc(${data.childPos}% - 8px)` }}
+                transition={{ duration: 1, ease: "easeOut" }}
               />
             </div>
-            <div className="flex justify-between text-xs font-lato text-navy/40 mt-2">
-              <span>0</span>
-              <span className="text-aqua font-poppins font-medium">Age group range: {sportData.benchmarkMin}–{sportData.benchmarkMax}</span>
-              <span>100</span>
+            <div className="flex justify-between mt-1">
+              <span className="font-lato text-xs text-navy/40">0</span>
+              <div className="text-center">
+                <span className="font-lato text-xs text-blue-500">Avg range: {data.benchmarkMin}–{data.benchmarkMax}</span>
+              </div>
+              <span className="font-lato text-xs text-navy/40">100</span>
             </div>
-            <div className="flex items-center gap-1.5 mt-2">
-              <div className="w-3 h-3 bg-orange rounded-full" />
-              <span className="text-xs font-poppins text-navy/60">
-                {CHILD.name}'s overall score: <span className="text-orange font-bold">{sportData.childPos}</span>
-              </span>
-            </div>
+            <p className="font-poppins font-semibold text-orange text-sm mt-2">
+              {CHILD.name} is at <span className="font-bebas text-lg">{data.childPos}</span> — above average for age group
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Coach notes */}
+        <motion.div
+          key={`notes-${activeSport}`}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="bg-white border border-cream-dark rounded-3xl p-6 shadow-sm"
+        >
+          <h2 className="font-nunito font-bold text-navy text-lg mb-4 flex items-center gap-2">
+            <MessageSquare size={18} className="text-aqua" />
+            Coach Notes
+          </h2>
+          <div className="space-y-3">
+            {data.coachNotes.map((note, i) => (
+              <div key={i} className="flex gap-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-orange to-gold rounded-full flex items-center justify-center text-sm shrink-0">
+                  C
+                </div>
+                <div className="flex-1 bg-cream rounded-2xl rounded-tl-none px-4 py-3">
+                  <p className="font-lato text-navy/70 text-sm leading-relaxed">{note}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </motion.div>
 
@@ -216,87 +242,27 @@ export default function ProgressPage() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="bg-navy-light border border-white/10 rounded-3xl p-6"
         >
-          <h2 className="font-nunito font-bold text-navy text-xl mb-4">Milestones & Badges</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-nunito font-bold text-white text-lg">Achievements</h2>
+            <span className="font-poppins font-semibold text-gold text-sm">
+              {BADGES.filter((b) => b.earned).length}/{BADGES.length} earned
+            </span>
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {BADGES.map((badge, i) => (
-              <motion.div
-                key={badge.name}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.06 }}
-                className={`relative rounded-2xl p-4 flex flex-col items-center gap-2 text-center border ${
-                  badge.earned
-                    ? "bg-gradient-to-br from-gold/20 to-orange/10 border-gold/40 shadow-lg shadow-gold/10"
-                    : "bg-white border-cream-dark opacity-60"
-                }`}
-              >
-                {!badge.earned && (
-                  <div className="absolute top-2 right-2">
-                    <Lock size={10} className="text-navy/30" />
-                  </div>
-                )}
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl ${badge.earned ? "bg-gradient-to-br from-gold to-orange shadow-lg" : "bg-cream"}`}>
-                  {badge.icon}
-                </div>
-                <div>
-                  <p className={`text-xs font-nunito font-bold ${badge.earned ? "text-navy" : "text-navy/40"}`}>{badge.name}</p>
-                  {badge.date && badge.earned && (
-                    <p className="text-[10px] font-lato text-navy/40 mt-0.5">{badge.date}</p>
-                  )}
-                </div>
-              </motion.div>
+              <Badge
+                key={i}
+                name={badge.name}
+                icon={badge.icon}
+                description={badge.description}
+                earned={badge.earned}
+                date={badge.date}
+              />
             ))}
           </div>
-        </motion.div>
-
-        {/* Coach Notes */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <h2 className="font-nunito font-bold text-navy text-xl mb-4">Coach Notes</h2>
-          <div className="relative">
-            <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-cream-dark" />
-            <div className="space-y-4 pl-12">
-              {COACH_NOTES.map((note, i) => (
-                <motion.div
-                  key={note.id}
-                  initial={{ opacity: 0, x: 10 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="relative"
-                >
-                  <div className="absolute -left-9 w-8 h-8 bg-gradient-to-br from-orange to-gold rounded-xl flex items-center justify-center text-white font-nunito font-black text-xs shadow-md">
-                    {note.initial}
-                  </div>
-                  <div className="bg-white border border-cream-dark rounded-2xl p-4 shadow-sm">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="font-poppins font-semibold text-navy text-sm">{note.coach}</p>
-                      <p className="text-navy/40 font-lato text-xs">{note.date}</p>
-                    </div>
-                    <p className="text-navy/70 font-lato text-sm leading-relaxed">{note.note}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Download button */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="flex justify-center pt-4"
-        >
-          <button className="flex items-center gap-2 border-2 border-orange text-orange font-poppins font-semibold text-sm px-8 py-3 rounded-full hover:bg-orange/5 hover:scale-105 active:scale-95 transition-all duration-300">
-            <Download size={16} />
-            Download Progress Report
-          </button>
         </motion.div>
       </div>
     </div>

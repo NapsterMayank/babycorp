@@ -1,100 +1,91 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useInView } from "react-intersection-observer";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
-const partners = [
-  { name: "SwimIndia Academy", type: "Swimming" },
-  { name: "National Chess Academy", type: "Chess" },
-  { name: "SportFirst India", type: "Multi-Sport" },
-  { name: "NutriKids", type: "Nutrition" },
-  { name: "PediaHealth", type: "Pediatrics" },
-  { name: "AquaSplash", type: "Swimming" },
-  { name: "Shuttle Stars", type: "Badminton" },
-  { name: "TableTop Pro", type: "Table Tennis" },
-  { name: "FlexyKids Gym", type: "Gymnastics" },
-  { name: "MindMasters", type: "Chess" },
+const SCHOOLS = [
+  "DPS R.K. Puram",
+  "Ryan International",
+  "Amity Saket",
+  "Modern School, Barakhamba",
+  "Sanskriti School",
+  "Bal Bharati",
+  "G.D. Goenka",
+  "Mount Abu Public School",
+  "DPS Vasant Kunj",
+  "Heritage Xperiential",
+  "Springdales School",
+  "Mother's International",
 ];
 
 export default function Partners() {
-  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.3 });
-
   return (
-    <section className="relative py-20 md:py-32 bg-navy overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" ref={ref}>
+    <section className="bg-cream py-24 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7 }}
-          className="text-center mb-12"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="flex flex-col items-center text-center mb-12"
         >
-          <span className="inline-block bg-aqua/10 text-aqua font-poppins font-semibold text-sm px-4 py-1.5 rounded-full mb-4">
-            Ecosystem
+          <span className="inline-block bg-orange/10 border border-orange/20 text-orange font-poppins font-semibold text-sm px-4 py-1.5 rounded-full mb-4">
+            School Partners
           </span>
-          <h2 className="font-nunito font-black text-3xl md:text-4xl lg:text-5xl text-white leading-tight mb-4">
-            We Know Who to Call{" "}
-            <span className="gradient-text-aqua">
-              When Your Child Is Ready.
-            </span>
+          <h2 className="font-nunito font-black text-4xl md:text-5xl text-navy leading-tight">
+            Trusted by Delhi&apos;s top schools
           </h2>
+          <p className="font-lato text-navy/50 text-lg mt-4 max-w-xl leading-relaxed">
+            Our partner schools integrate BabyCorp sports coaching on campus — directly in the school schedule.
+          </p>
         </motion.div>
+      </div>
 
-        {/* Scrolling logos - two rows */}
-        <div className="space-y-6 overflow-hidden">
-          {/* Row 1 */}
-          <div className="relative">
-            <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-navy to-transparent z-10" />
-            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-navy to-transparent z-10" />
-            <div className="partner-scroll">
-              {[...partners, ...partners].map((partner, i) => (
-                <div
-                  key={i}
-                  className="flex-shrink-0 bg-white/5 backdrop-blur-sm rounded-xl px-8 py-4 border border-white/10 hover:border-aqua/30 transition-colors duration-300"
-                >
-                  <p className="text-white font-poppins font-semibold text-sm whitespace-nowrap">
-                    {partner.name}
-                  </p>
-                  <p className="text-white/40 text-xs font-lato">
-                    {partner.type}
-                  </p>
-                </div>
-              ))}
-            </div>
+      {/* Marquee — full bleed */}
+      <div className="relative">
+        {/* Fade edges */}
+        <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-cream to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-cream to-transparent z-10 pointer-events-none" />
+
+        <div className="flex gap-4 overflow-hidden">
+          <div className="flex gap-4 animate-marquee shrink-0">
+            {[...SCHOOLS, ...SCHOOLS].map((school, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-2 bg-navy text-white rounded-full px-5 py-2.5 font-poppins text-sm font-medium shrink-0 whitespace-nowrap"
+              >
+                <span>🏫</span>
+                {school}
+              </div>
+            ))}
           </div>
-
-          {/* Row 2 - reverse direction */}
-          <div className="relative">
-            <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-navy to-transparent z-10" />
-            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-navy to-transparent z-10" />
-            <div
-              className="partner-scroll"
-              style={{ animationDirection: "reverse" }}
-            >
-              {[...[...partners].reverse(), ...[...partners].reverse()].map((partner, i) => (
-                <div
-                  key={i}
-                  className="flex-shrink-0 bg-white/5 backdrop-blur-sm rounded-xl px-8 py-4 border border-white/10 hover:border-gold/30 transition-colors duration-300"
-                >
-                  <p className="text-white font-poppins font-semibold text-sm whitespace-nowrap">
-                    {partner.name}
-                  </p>
-                  <p className="text-white/40 text-xs font-lato">
-                    {partner.type}
-                  </p>
-                </div>
-              ))}
-            </div>
+          <div className="flex gap-4 animate-marquee shrink-0" aria-hidden>
+            {[...SCHOOLS, ...SCHOOLS].map((school, i) => (
+              <div
+                key={`dup-${i}`}
+                className="flex items-center gap-2 bg-navy text-white rounded-full px-5 py-2.5 font-poppins text-sm font-medium shrink-0 whitespace-nowrap"
+              >
+                <span>🏫</span>
+                {school}
+              </div>
+            ))}
           </div>
         </div>
+      </div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : {}}
-          transition={{ delay: 0.5 }}
-          className="text-center text-white/40 font-lato text-sm mt-8"
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 flex justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
         >
-          Partner logos to be added — institutions verified and growing
-        </motion.p>
+          <Link href="/schools" className="flex items-center gap-2 text-orange font-poppins font-semibold hover:text-orange-hover transition-colors">
+            View all partner schools
+            <ArrowRight size={16} />
+          </Link>
+        </motion.div>
       </div>
     </section>
   );

@@ -1,116 +1,96 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useInView } from "react-intersection-observer";
-import { Star, Quote } from "lucide-react";
+import { Star } from "lucide-react";
 
-const testimonials = [
+const TESTIMONIALS = [
   {
+    quote: "Aryan went from being scared of water to swimming 50 meters in just 3 months. The monthly progress reports keep me hooked — I can actually see him improving week by week!",
     name: "Priya Sharma",
-    city: "Mumbai",
-    childAge: "1 year old",
-    quote:
-      "My son started swimming at 7 months. I was terrified at first, but the coaches were so patient and professional. Now at 1, he's completely comfortable in water. Best decision we ever made!",
-    rating: 5,
-    avatar: "PS",
-    avatarColor: "from-aqua to-aqua/70",
+    location: "Delhi",
+    sport: "Swimming 🏊",
+    highlight: false,
   },
   {
-    name: "Rahul Krishnamurthy",
-    city: "Bengaluru",
-    childAge: "3 years old",
-    quote:
-      "The multi-sport approach is genius. My daughter does gymnastics and is starting chess. The nutrition guidance has been a game-changer for her eating habits too.",
-    rating: 5,
-    avatar: "RK",
-    avatarColor: "from-orange to-gold",
+    quote: "Best chess coaching for kids in Delhi. My daughter earned 4 badges in her very first month. She's absolutely obsessed — she practices at home now without being asked!",
+    name: "Vikram Nair",
+    location: "Gurgaon",
+    sport: "Chess ♟️",
+    highlight: true,
   },
   {
-    name: "Aisha Khan",
-    city: "Delhi",
-    childAge: "2 years old",
-    quote:
-      "What impressed me most is the safety protocols. As a doctor, I'm very particular about hygiene — BabyCorp exceeded my expectations. The monthly progress reports are incredibly detailed.",
-    rating: 5,
-    avatar: "AK",
-    avatarColor: "from-purple-500 to-pink-500",
-  },
-  {
-    name: "Vikram Patel",
-    city: "Hyderabad",
-    childAge: "4 years old",
-    quote:
-      "My son plays badminton and chess now. The transformation in his focus and discipline is remarkable. His school teachers have noticed the difference too.",
-    rating: 5,
-    avatar: "VP",
-    avatarColor: "from-gold to-orange",
+    quote: "The WhatsApp reminders and easy rescheduling make it SO much easier to manage between school and coaching. Finally a platform that understands busy Indian parents.",
+    name: "Sunita Reddy",
+    location: "Noida",
+    sport: "Cricket 🏏",
+    highlight: false,
   },
 ];
 
 export default function Testimonials() {
-  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.15 });
-
   return (
-    <section className="relative py-20 md:py-32 bg-cream overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" ref={ref}>
+    <section className="relative bg-navy py-24 overflow-hidden">
+      {/* Ambient blobs */}
+      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-orange/10 rounded-full blur-3xl animate-float-slow pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-aqua/8 rounded-full blur-3xl animate-float-medium pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7 }}
-          className="text-center mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="flex flex-col items-center text-center mb-14"
         >
-          <span className="inline-block bg-orange/10 text-orange font-poppins font-semibold text-sm px-4 py-1.5 rounded-full mb-4">
-            Testimonials
+          <span className="inline-block bg-gold/10 border border-gold/20 text-gold font-poppins font-semibold text-sm px-4 py-1.5 rounded-full mb-4">
+            Parent Stories
           </span>
-          <h2 className="font-nunito font-black text-3xl md:text-4xl lg:text-5xl text-navy leading-tight">
-            Parents Are Already{" "}
-            <span className="gradient-text">Talking.</span>
+          <h2 className="font-nunito font-black text-4xl md:text-5xl text-white leading-tight">
+            What parents are{" "}
+            <span className="bg-gradient-to-r from-gold to-orange bg-clip-text text-transparent">
+              saying
+            </span>
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {testimonials.map((t, i) => (
+        <div className="grid lg:grid-cols-3 gap-6">
+          {TESTIMONIALS.map((t, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, x: i % 2 === 0 ? -40 : 40 }}
-              animate={inView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.6, delay: i * 0.15 }}
-              className="bg-white rounded-2xl p-8 shadow-lg shadow-navy/5 border border-navy/5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: i * 0.12 }}
+              whileHover={{ y: -4 }}
+              className={`bg-navy-light rounded-3xl p-8 flex flex-col gap-5 transition-all duration-300 ${
+                t.highlight
+                  ? "border border-gold/30 shadow-lg shadow-gold/10"
+                  : "border border-white/10"
+              }`}
             >
-              {/* Quote icon */}
-              <Quote className="absolute top-6 right-6 text-navy/5" size={40} />
+              {/* Quote mark */}
+              <div className="text-6xl font-serif leading-none text-gold/20 font-black select-none">&ldquo;</div>
 
               {/* Stars */}
-              <div className="flex gap-1 mb-4">
-                {Array.from({ length: t.rating }).map((_, j) => (
-                  <Star
-                    key={j}
-                    size={16}
-                    className="text-gold fill-gold"
-                  />
+              <div className="flex gap-1 -mt-8">
+                {[...Array(5)].map((_, si) => (
+                  <Star key={si} size={16} className="text-gold fill-gold" />
                 ))}
               </div>
 
-              <p className="text-navy/70 font-lato text-base leading-relaxed mb-6 italic">
+              {/* Quote */}
+              <p className="font-lato text-white/75 text-base leading-relaxed flex-1">
                 &ldquo;{t.quote}&rdquo;
               </p>
 
-              <div className="flex items-center gap-3">
-                {/* Avatar */}
-                <div
-                  className={`w-12 h-12 rounded-full bg-gradient-to-br ${t.avatarColor} flex items-center justify-center`}
-                >
-                  <span className="text-white font-poppins font-bold text-sm">
-                    {t.avatar}
-                  </span>
+              {/* Author */}
+              <div className="flex items-center gap-3 pt-4 border-t border-white/10">
+                <div className="w-10 h-10 bg-gradient-to-br from-orange to-gold rounded-full flex items-center justify-center text-lg shrink-0">
+                  {t.name[0]}
                 </div>
                 <div>
-                  <p className="font-poppins font-semibold text-navy text-sm">
-                    {t.name}
-                  </p>
-                  <p className="text-navy/50 text-xs font-lato">
-                    {t.city} • Child age: {t.childAge}
-                  </p>
+                  <p className="font-poppins font-semibold text-white text-sm">{t.name}</p>
+                  <p className="font-lato text-white/40 text-xs">{t.location} · {t.sport}</p>
                 </div>
               </div>
             </motion.div>

@@ -1,153 +1,114 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
-import { useInView } from "react-intersection-observer";
+import { motion } from "framer-motion";
+import { UserPlus, Search, Play, Trophy } from "lucide-react";
 
-const milestones = [
+const STEPS = [
   {
-    age: "Birth → 6 months",
-    title: "Swimming Begins",
-    description: "Water familiarization, parent-baby swim sessions, building comfort and trust in water.",
-    emoji: "🏊",
-    color: "bg-aqua",
+    number: "01",
+    icon: UserPlus,
+    emoji: "👨‍👩‍👧",
+    title: "Sign Up & Add Child",
+    body: "Create your family profile and add your child's details — age, interests, any special notes.",
+    color: "from-orange to-orange-hover",
+    shadow: "shadow-orange/30",
   },
   {
-    age: "6m → 18 months",
-    title: "Gymnastics Foundations",
-    description: "Tumbling, rolling, balance activities. Building core motor skills through play.",
-    emoji: "🤸",
-    color: "bg-purple-500",
+    number: "02",
+    icon: Search,
+    emoji: "🔍",
+    title: "Discover & Book Trial",
+    body: "Browse verified academies near you. Filter by sport, age group and timing. Book a free trial in 2 taps.",
+    color: "from-aqua to-aqua/80",
+    shadow: "shadow-aqua/30",
   },
   {
-    age: "18m → 3 years",
-    title: "Physical Conditioning",
-    description: "Rhythm, coordination drills. Structured play that builds athletic foundations.",
-    emoji: "💪",
-    color: "bg-orange",
+    number: "03",
+    icon: Play,
+    emoji: "🏃",
+    title: "Enroll & Start Sessions",
+    body: "Choose a monthly or quarterly plan. Attend sessions. Get WhatsApp reminders before every class.",
+    color: "from-gold to-yellow-400",
+    shadow: "shadow-gold/30",
   },
   {
-    age: "3 → 5 years",
-    title: "Chess + Badminton",
-    description: "Mental + physical sports introduced. Strategy meets agility.",
-    emoji: "♟️",
-    color: "bg-gold",
-  },
-  {
-    age: "5 → 7 years",
-    title: "Full Sports Program",
-    description: "Table Tennis added. Your child is now training across 5 disciplines.",
-    emoji: "🏓",
-    color: "bg-red-500",
-  },
-  {
-    age: "7 years",
-    title: "Top 1% of India",
-    description: "Your child is already among the most physically developed kids in the country.",
+    number: "04",
+    icon: Trophy,
     emoji: "🏆",
-    color: "bg-gradient-to-r from-gold to-orange",
+    title: "Track Progress & Earn Badges",
+    body: "Monthly skill assessments. PDF reports emailed automatically. Badges and milestones to celebrate growth.",
+    color: "from-purple-500 to-purple-400",
+    shadow: "shadow-purple-500/30",
   },
 ];
 
 export default function JourneyTimeline() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"],
-  });
-  const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
-
   return (
-    <section className="relative py-20 md:py-32 bg-cream overflow-hidden" ref={containerRef}>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="relative bg-navy py-24 overflow-hidden" id="how-it-works">
+      {/* Ambient blobs */}
+      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-orange/10 rounded-full blur-3xl animate-float-slow pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-aqua/8 rounded-full blur-3xl animate-float-medium pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          className="text-center mb-20"
+          transition={{ duration: 0.6 }}
+          className="flex flex-col items-center text-center mb-16"
         >
-          <span className="inline-block bg-gold/20 text-navy font-poppins font-semibold text-sm px-4 py-1.5 rounded-full mb-4">
-            The Journey
+          <span className="inline-block bg-orange/10 border border-orange/20 text-orange font-poppins font-semibold text-sm px-4 py-1.5 rounded-full mb-4">
+            How It Works
           </span>
-          <h2 className="font-nunito font-black text-3xl md:text-4xl lg:text-5xl text-navy leading-tight">
-            The BabyCorp{" "}
-            <span className="gradient-text">Championship Pathway</span>
+          <h2 className="font-nunito font-black text-4xl md:text-5xl text-white leading-tight">
+            Your child&apos;s journey in{" "}
+            <span className="bg-gradient-to-r from-gold to-orange bg-clip-text text-transparent">
+              4 steps
+            </span>
           </h2>
         </motion.div>
 
-        {/* Timeline */}
+        {/* Timeline — horizontal on desktop, vertical on mobile */}
         <div className="relative">
-          {/* Central line background */}
-          <div className="absolute left-4 md:left-1/2 md:-translate-x-1/2 top-0 bottom-0 w-0.5 bg-navy/10" />
-          {/* Animated gold line */}
-          <motion.div
-            className="absolute left-4 md:left-1/2 md:-translate-x-1/2 top-0 w-0.5 bg-gradient-to-b from-gold to-orange rounded-full"
-            style={{ height: lineHeight }}
-          />
+          {/* Connector line (desktop only) */}
+          <div className="hidden lg:block absolute top-16 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
-          {/* Milestones */}
-          <div className="space-y-12 md:space-y-16">
-            {milestones.map((milestone, i) => (
-              <TimelineItem key={i} milestone={milestone} index={i} />
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-6">
+            {STEPS.map((step, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.12 }}
+                className="flex lg:flex-col items-start lg:items-center gap-5 lg:gap-4 lg:text-center"
+              >
+                {/* Step circle */}
+                <div className="relative shrink-0">
+                  <div className={`w-14 h-14 bg-gradient-to-br ${step.color} rounded-2xl flex items-center justify-center shadow-lg ${step.shadow} text-2xl`}>
+                    {step.emoji}
+                  </div>
+                  {/* Step number badge */}
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-navy border border-white/20 rounded-full flex items-center justify-center">
+                    <span className="font-bebas text-white/60 text-xs">{i + 1}</span>
+                  </div>
+                </div>
+
+                {/* Vertical connector for mobile */}
+                {i < STEPS.length - 1 && (
+                  <div className="lg:hidden absolute left-7 mt-14 w-px h-8 bg-white/10" />
+                )}
+
+                <div>
+                  <h3 className="font-nunito font-bold text-white text-lg mb-1.5">{step.title}</h3>
+                  <p className="font-lato text-white/50 text-sm leading-relaxed">{step.body}</p>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </div>
     </section>
-  );
-}
-
-function TimelineItem({
-  milestone,
-  index,
-}: {
-  milestone: (typeof milestones)[0];
-  index: number;
-}) {
-  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.3 });
-  const isLeft = index % 2 === 0;
-
-  return (
-    <div
-      ref={ref}
-      className={`relative flex items-center ${
-        isLeft ? "md:flex-row" : "md:flex-row-reverse"
-      } gap-8`}
-    >
-      {/* Dot on the line */}
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={inView ? { scale: 1 } : {}}
-        transition={{ duration: 0.4, type: "spring" }}
-        className={`absolute left-4 md:left-1/2 -translate-x-1/2 w-8 h-8 ${milestone.color} rounded-full z-10 flex items-center justify-center text-sm shadow-lg`}
-      >
-        {milestone.emoji}
-      </motion.div>
-
-      {/* Content */}
-      <div className={`w-full md:w-1/2 ${isLeft ? "md:pr-16" : "md:pl-16"} pl-16 md:pl-0`}>
-        <motion.div
-          initial={{ opacity: 0, x: isLeft ? -40 : 40 }}
-          animate={inView ? { opacity: 1, x: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="bg-white rounded-2xl p-6 shadow-lg shadow-navy/5 border border-navy/5 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-        >
-          <span className="text-xs font-poppins font-semibold text-orange uppercase tracking-wider">
-            {milestone.age}
-          </span>
-          <h3 className="font-nunito font-bold text-xl text-navy mt-2 mb-2">
-            {milestone.title}
-          </h3>
-          <p className="text-navy/60 font-lato text-sm leading-relaxed">
-            {milestone.description}
-          </p>
-        </motion.div>
-      </div>
-
-      {/* Spacer for opposite side */}
-      <div className="hidden md:block w-1/2" />
-    </div>
   );
 }

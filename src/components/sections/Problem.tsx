@@ -1,114 +1,80 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useInView } from "react-intersection-observer";
-import CountUp from "react-countup";
+import { ArrowDown } from "lucide-react";
 
-const stats = [
+const PAIN_POINTS = [
   {
-    number: 7,
-    suffix: "",
-    label: "medals India won at Paris 2024 Olympics",
-    color: "text-orange",
+    icon: "🎲",
+    title: "Random Coaching",
+    body: "No curriculum, no structure. Just show up and hope. Your child's development is left to chance.",
   },
   {
-    number: 0.2,
-    suffix: "%",
-    decimals: 1,
-    label: "of India's population knows how to swim",
-    color: "text-aqua",
+    icon: "👁️",
+    title: "Zero Progress Visibility",
+    body: "You pay monthly but never know if your child is improving. No reports. No benchmarks. Just silence.",
   },
   {
-    number: 1,
-    suffix: "%",
-    prefix: "<",
-    label: "of Indian children get structured sports education before age 6",
-    color: "text-gold",
-  },
-  {
-    number: 5,
-    suffix: " Lakh+",
-    prefix: "₹",
-    label: "spent per year by Tier 1 parents on their child's education",
-    color: "text-orange",
+    icon: "⏰",
+    title: "Wasted Potential",
+    body: "The critical years between 3–10 pass quickly. Talent goes undiscovered. Opportunities close forever.",
   },
 ];
 
 export default function Problem() {
-  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.2 });
-
   return (
-    <section className="relative py-20 md:py-32 bg-cream overflow-hidden">
-      {/* Background accent */}
-      <div className="absolute top-0 right-0 w-80 h-80 bg-orange/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-aqua/5 rounded-full blur-3xl" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" ref={ref}>
-        {/* Section header */}
+    <section className="bg-cream py-24 px-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Badge */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7 }}
-          className="text-center mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="flex flex-col items-center text-center mb-14"
         >
-          <span className="inline-block bg-orange/10 text-orange font-poppins font-semibold text-sm px-4 py-1.5 rounded-full mb-4">
-            The Wake-Up Call
+          <span className="inline-block bg-orange/10 border border-orange/20 text-orange font-poppins font-semibold text-sm px-4 py-1.5 rounded-full mb-4">
+            The Problem
           </span>
-          <h2 className="font-nunito font-black text-3xl md:text-4xl lg:text-5xl text-navy max-w-4xl mx-auto leading-tight">
-            25 Million Babies Born in India Every Year.{" "}
-            <span className="gradient-text">
-              Less Than 0.2% Will Ever Learn to Swim.
-            </span>
+          <h2 className="font-nunito font-black text-4xl md:text-5xl text-navy leading-tight max-w-2xl">
+            Every parent has been there...
           </h2>
+          <p className="font-lato text-navy/50 text-lg mt-4 max-w-xl leading-relaxed">
+            India has 350 million children under 14. Less than 3% receive structured sports coaching. Here&apos;s why.
+          </p>
         </motion.div>
 
-        {/* Stats grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, i) => (
+        {/* Pain point cards */}
+        <div className="grid md:grid-cols-3 gap-6 mb-14">
+          {PAIN_POINTS.map((point, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 40 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: i * 0.15 }}
-              className="relative group"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: i * 0.1 }}
+              whileHover={{ y: -4, boxShadow: "0 12px 32px rgba(0,0,0,0.08)" }}
+              className="bg-white border border-cream-dark rounded-2xl p-6 border-l-4 border-l-orange shadow-sm transition-all duration-300 cursor-default"
             >
-              <div className="bg-white rounded-2xl p-6 shadow-lg shadow-navy/5 border border-navy/5 hover:shadow-xl hover:shadow-orange/10 hover:-translate-y-1 transition-all duration-300">
-                {/* Decorative corner */}
-                <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-orange/10 to-transparent rounded-tr-2xl rounded-bl-[40px]" />
-
-                <div className={`stat-number ${stat.color} mb-2`}>
-                  {inView && (
-                    <>
-                      {stat.prefix || ""}
-                      <CountUp
-                        end={stat.number}
-                        duration={2.5}
-                        decimals={stat.decimals || 0}
-                        delay={0.3 + i * 0.15}
-                      />
-                      {stat.suffix}
-                    </>
-                  )}
-                </div>
-                <p className="text-navy/70 font-lato text-sm leading-relaxed">
-                  {stat.label}
-                </p>
-              </div>
+              <div className="text-4xl mb-4">{point.icon}</div>
+              <h3 className="font-nunito font-black text-navy text-xl mb-2">{point.title}</h3>
+              <p className="font-lato text-navy/60 text-base leading-relaxed">{point.body}</p>
             </motion.div>
           ))}
         </div>
 
-        {/* Bottom message */}
+        {/* Transition line */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={inView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.6, delay: 1 }}
-          className="text-center mt-12"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="flex flex-col items-center gap-2"
         >
-          <p className="text-navy/60 font-poppins text-base md:text-lg max-w-2xl mx-auto">
-            The window for early physical development closes fast. Every day
-            without structured sports training is a day of potential lost.
-          </p>
+          <p className="font-poppins font-semibold text-orange text-lg">There&apos;s a better way</p>
+          <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
+            <ArrowDown size={22} className="text-orange" />
+          </motion.div>
         </motion.div>
       </div>
     </section>

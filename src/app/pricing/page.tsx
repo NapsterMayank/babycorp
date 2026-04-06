@@ -2,175 +2,204 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Check, Star, Crown, Zap } from "lucide-react";
+import { Check, Zap, ArrowRight } from "lucide-react";
 
-const plans = [
+const PLANS = [
   {
-    name: "Starter",
-    price: "10,000",
-    icon: Star,
-    color: "from-aqua to-aqua/80",
+    name: "Trial",
+    price: "₹0 – ₹500",
+    period: "one-time",
+    description: "Try before you commit — zero pressure",
     features: [
-      { text: "Swimming classes (group)", included: true },
-      { text: "Monthly progress report", included: true },
-      { text: "Nutritionist consultation (quarterly)", included: true },
-      { text: "Basic parent dashboard", included: true },
-      { text: "Gymnastics", included: false },
-      { text: "Sport specialization", included: false },
-      { text: "Personal coach", included: false },
-      { text: "Academy placement", included: false },
+      "Single trial session",
+      "Coach introduction",
+      "Academy facility tour",
+      "Feedback session post-trial",
     ],
-    popular: false,
+    cta: "Book a Trial",
+    href: "/discover",
+    highlighted: false,
+    badge: null,
   },
   {
-    name: "Champion",
-    price: "18,000",
-    icon: Crown,
-    color: "from-orange to-gold",
+    name: "Monthly",
+    price: "₹1,500 – ₹3,500",
+    period: "per month",
+    description: "Steady progress, flexible commitment",
     features: [
-      { text: "Swimming + Gymnastics", included: true },
-      { text: "Sport of choice (Chess/Badminton/TT)", included: true },
-      { text: "Monthly progress report", included: true },
-      { text: "Nutritionist (monthly)", included: true },
-      { text: "Full parent dashboard", included: true },
-      { text: "Priority partner referrals", included: true },
-      { text: "Personal coach", included: false },
-      { text: "Academy placement", included: false },
+      "4–8 sessions per month",
+      "Monthly skill assessment",
+      "PDF progress report",
+      "WhatsApp session reminders",
+      "1 makeup session/month",
+      "Cancel with 7 days notice",
     ],
-    popular: true,
+    cta: "Enroll Monthly",
+    href: "/discover",
+    highlighted: true,
+    badge: "Most Popular",
   },
   {
-    name: "Elite",
-    price: "28,000",
-    icon: Zap,
-    color: "from-gold to-orange",
+    name: "Quarterly",
+    price: "₹4,000 – ₹9,000",
+    period: "per 3 months",
+    description: "Save up to 15% vs monthly",
     features: [
-      { text: "All 5 sports included", included: true },
-      { text: "Personal coach matching", included: true },
-      { text: "Weekly nutritionist check-in", included: true },
-      { text: "Full parent dashboard", included: true },
-      { text: "Direct academy placement support", included: true },
-      { text: "Priority event invitations", included: true },
-      { text: "Video analysis of sessions", included: true },
-      { text: "Quarterly assessments", included: true },
+      "All monthly benefits",
+      "3-month commitment",
+      "Priority batch allocation",
+      "Quarterly milestone report",
+      "Rate locked for full quarter",
+      "Early access to new programs",
     ],
-    popular: false,
+    cta: "Enroll Quarterly",
+    href: "/discover",
+    highlighted: false,
+    badge: "Save 15%",
   },
+];
+
+const FAQ_ITEMS = [
+  { q: "Does pricing vary by academy?", a: "Yes. Each academy sets its own price within the platform range. BabyCorp's platform fee is already included." },
+  { q: "Are there any hidden charges?", a: "Never. The price you see includes everything. GST of 18% applies on trial bookings only." },
+  { q: "What if I need to cancel?", a: "Monthly plans cancel with 7 days notice. Quarterly plans have a prorated refund policy set by each academy." },
 ];
 
 export default function PricingPage() {
   return (
-    <main className="pt-20 bg-cream">
+    <div className="min-h-screen">
       {/* Hero */}
-      <section className="py-16 md:py-24 bg-navy">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-          >
-            <h1 className="font-nunito font-black text-4xl md:text-5xl lg:text-6xl text-white mb-4">
-              Simple, Transparent{" "}
-              <span className="gradient-text">Pricing</span>
+      <div className="relative bg-navy pt-28 pb-16 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-orange/10 rounded-full blur-3xl animate-float-slow pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-aqua/8 rounded-full blur-3xl animate-float-medium pointer-events-none" />
+
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <span className="inline-block bg-gold/10 border border-gold/20 text-gold font-poppins font-semibold text-sm px-4 py-1.5 rounded-full mb-4">
+              Transparent Pricing
+            </span>
+            <h1 className="font-nunito font-black text-4xl md:text-6xl text-white mb-4">
+              Simple.{" "}
+              <span className="bg-gradient-to-r from-gold to-orange bg-clip-text text-transparent">
+                Honest.
+              </span>
+              {" "}No surprises.
             </h1>
-            <p className="text-white/60 font-poppins text-lg max-w-2xl mx-auto">
-              An Olympic pathway for less than most parents spend monthly on
-              tutors.
+            <p className="font-lato text-white/55 text-lg max-w-lg mx-auto">
+              Pricing is set by each academy. BabyCorp&apos;s platform fee is already included. What you see is what you pay.
             </p>
           </motion.div>
         </div>
-      </section>
+      </div>
 
-      {/* Plans */}
-      <section className="py-16 md:py-24">
+      {/* Pricing cards */}
+      <div className="bg-cream py-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {plans.map((plan, i) => {
-              const Icon = plan.icon;
-              return (
-                <motion.div
-                  key={plan.name}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: i * 0.15 }}
-                  className={`relative ${plan.popular ? "md:-mt-4" : ""}`}
-                >
-                  {plan.popular && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                      <span className="bg-gradient-to-r from-orange to-gold text-navy font-poppins font-bold text-xs px-4 py-1.5 rounded-full shadow-lg">
-                        MOST POPULAR
-                      </span>
-                    </div>
-                  )}
-                  <div
-                    className={`bg-white rounded-3xl p-8 h-full border-2 ${
-                      plan.popular
-                        ? "border-orange shadow-2xl shadow-orange/10"
-                        : "border-navy/5 shadow-lg"
-                    }`}
-                  >
-                    <div
-                      className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${plan.color} flex items-center justify-center mb-5`}
-                    >
-                      <Icon className="text-white" size={24} />
-                    </div>
-
-                    <h3 className="font-nunito font-bold text-2xl text-navy mb-1">
-                      {plan.name}
-                    </h3>
-                    <div className="flex items-baseline gap-1 mb-8">
-                      <span className="font-bebas text-5xl text-navy">
-                        ₹{plan.price}
-                      </span>
-                      <span className="text-navy/50 font-lato text-sm">
-                        /year
-                      </span>
-                    </div>
-
-                    <ul className="space-y-3 mb-8">
-                      {plan.features.map((feature) => (
-                        <li
-                          key={feature.text}
-                          className={`flex items-start gap-3 text-sm font-lato ${
-                            feature.included ? "text-navy/70" : "text-navy/30 line-through"
-                          }`}
-                        >
-                          <Check
-                            size={16}
-                            className={`mt-0.5 flex-shrink-0 ${
-                              feature.included ? "text-green-500" : "text-navy/20"
-                            }`}
-                          />
-                          {feature.text}
-                        </li>
-                      ))}
-                    </ul>
-
-                    <Link
-                      href="/#contact"
-                      className={`block text-center font-poppins font-semibold py-3 rounded-full transition-all duration-300 ${
-                        plan.popular
-                          ? "bg-gradient-to-r from-orange to-orange-hover text-white hover:shadow-lg hover:shadow-orange/30"
-                          : "bg-navy/5 text-navy hover:bg-navy hover:text-white"
-                      }`}
-                    >
-                      Get Started
-                    </Link>
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            {PLANS.map((plan, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                className={`relative bg-white border rounded-3xl p-8 flex flex-col transition-all duration-300 ${
+                  plan.highlighted
+                    ? "border-orange shadow-xl shadow-orange/10 md:scale-105"
+                    : "border-cream-dark shadow-sm hover:shadow-md"
+                }`}
+              >
+                {plan.badge && (
+                  <div className={`absolute -top-3 left-1/2 -translate-x-1/2 ${plan.highlighted ? "bg-gradient-to-r from-orange to-orange-hover" : "bg-gold"} text-white font-poppins font-bold text-xs px-4 py-1 rounded-full whitespace-nowrap`}>
+                    {plan.badge}
                   </div>
-                </motion.div>
-              );
-            })}
+                )}
+
+                <div className="mb-6">
+                  <h3 className="font-nunito font-black text-navy text-xl mb-1">{plan.name}</h3>
+                  <p className="font-lato text-navy/50 text-sm mb-4">{plan.description}</p>
+                  <div>
+                    <span className="font-bebas text-4xl text-navy tracking-wide">{plan.price}</span>
+                    <span className="font-lato text-navy/40 text-sm ml-1">{plan.period}</span>
+                  </div>
+                </div>
+
+                <ul className="space-y-3 mb-8 flex-1">
+                  {plan.features.map((feat, j) => (
+                    <li key={j} className="flex items-center gap-2.5">
+                      <div className="w-5 h-5 bg-green-50 rounded-full flex items-center justify-center shrink-0">
+                        <Check size={11} className="text-green-500" />
+                      </div>
+                      <span className="font-lato text-navy/70 text-sm">{feat}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <Link href={plan.href}>
+                  <button className={`w-full font-poppins font-semibold text-sm py-3.5 rounded-full transition-all duration-300 flex items-center justify-center gap-2 ${
+                    plan.highlighted
+                      ? "bg-gradient-to-r from-orange to-orange-hover text-white hover:shadow-lg hover:shadow-orange/30 hover:scale-[1.02] active:scale-95"
+                      : "border border-navy/20 text-navy hover:bg-navy hover:text-white"
+                  }`}>
+                    {plan.cta} <ArrowRight size={15} />
+                  </button>
+                </Link>
+              </motion.div>
+            ))}
           </div>
 
-          {/* Note */}
-          <div className="text-center mt-12">
-            <p className="text-navy/40 font-lato text-sm">
-              All prices are per child, per year. Family discounts available for
-              2+ children. EMI options coming soon.
-            </p>
+          {/* Annual banner */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="bg-gradient-to-r from-gold/20 via-orange/10 to-gold/20 border border-gold/30 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4"
+          >
+            <div className="flex items-center gap-3">
+              <Zap size={22} className="text-gold shrink-0" />
+              <div>
+                <p className="font-nunito font-bold text-navy text-base">Go Annual — Save up to 25%</p>
+                <p className="font-lato text-navy/50 text-sm">Lock in your rate. Never worry about price increases.</p>
+              </div>
+            </div>
+            <Link href="/discover">
+              <button className="shrink-0 bg-gradient-to-r from-gold to-yellow-400 text-navy font-poppins font-bold text-sm px-6 py-2.5 rounded-full hover:shadow-md hover:scale-[1.02] transition-all">
+                View Annual Plans
+              </button>
+            </Link>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Mini FAQ */}
+      <div className="bg-navy py-14">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="font-nunito font-black text-3xl text-white text-center mb-8"
+          >
+            Common questions
+          </motion.h2>
+          <div className="space-y-4">
+            {FAQ_ITEMS.map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+                className="bg-navy-light border border-white/10 rounded-2xl p-5"
+              >
+                <p className="font-poppins font-semibold text-white text-sm mb-2">{item.q}</p>
+                <p className="font-lato text-white/55 text-sm leading-relaxed">{item.a}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
-      </section>
-    </main>
+      </div>
+    </div>
   );
 }

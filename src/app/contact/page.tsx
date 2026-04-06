@@ -1,249 +1,223 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useState } from "react";
-import {
-  Mail,
-  Phone,
-  MapPin,
-  MessageCircle,
-  Send,
-  Clock,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { Mail, Phone, MapPin, MessageCircle, Send, Clock, Check } from "lucide-react";
 
-const cities = [
-  "Mumbai",
-  "Delhi NCR",
-  "Bengaluru",
-  "Hyderabad",
-  "Chennai",
-  "Pune",
+const CONTACT_INFO = [
+  {
+    icon: Mail,
+    label: "Email",
+    value: "hello@babycorp.in",
+    sub: "We reply within 24 hours",
+    color: "text-orange",
+    bg: "bg-orange/10",
+  },
+  {
+    icon: Phone,
+    label: "Phone",
+    value: "+91 98765 43210",
+    sub: "Mon–Sat, 9 AM – 6 PM IST",
+    color: "text-aqua",
+    bg: "bg-aqua/10",
+  },
+  {
+    icon: MessageCircle,
+    label: "WhatsApp",
+    value: "+91 98765 43210",
+    sub: "Quick responses on WhatsApp",
+    color: "text-green-400",
+    bg: "bg-green-500/10",
+  },
+  {
+    icon: MapPin,
+    label: "Headquarters",
+    value: "New Delhi, India 🇮🇳",
+    sub: "Serving Delhi · Mumbai · Bengaluru",
+    color: "text-gold",
+    bg: "bg-gold/10",
+  },
 ];
 
 export default function ContactPage() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    city: "",
-    childAge: "",
-    message: "",
-  });
-  const [submitted, setSubmitted] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "", phone: "", subject: "", message: "" });
+  const [sent, setSent] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSent(true);
   };
 
   return (
-    <main className="pt-20 bg-cream">
+    <main className="min-h-screen bg-cream">
       {/* Hero */}
-      <section className="py-16 md:py-24 bg-navy">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-          >
-            <h1 className="font-nunito font-black text-4xl md:text-5xl lg:text-6xl text-white mb-4">
-              Get in <span className="gradient-text">Touch</span>
+      <div className="relative bg-navy pt-28 pb-12 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-orange/10 rounded-full blur-3xl animate-float-slow pointer-events-none" />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <span className="inline-block bg-orange/10 border border-orange/20 text-orange font-poppins font-semibold text-sm px-4 py-1.5 rounded-full mb-4">
+              Contact Us
+            </span>
+            <h1 className="font-nunito font-black text-4xl md:text-5xl text-white mb-4">
+              We&apos;d love to{" "}
+              <span className="bg-gradient-to-r from-gold to-orange bg-clip-text text-transparent">
+                hear from you
+              </span>
             </h1>
-            <p className="text-white/60 font-poppins text-lg max-w-2xl mx-auto">
-              Have questions? Want to visit a facility? We&apos;d love to hear
-              from you.
+            <p className="font-lato text-white/55 text-lg">
+              Questions, partnership inquiries, or just saying hi — we&apos;re here.
             </p>
           </motion.div>
         </div>
-      </section>
+      </div>
 
-      <section className="py-16 md:py-24">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Contact Form */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7 }}
-            >
-              <h2 className="font-nunito font-bold text-2xl text-navy mb-6">
-                Send Us a Message
-              </h2>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid lg:grid-cols-5 gap-8">
+          {/* Contact form */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="lg:col-span-3"
+          >
+            {sent ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-white border border-cream-dark rounded-3xl p-10 text-center shadow-sm"
+              >
+                <div className="w-16 h-16 bg-green-500/10 border border-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Check size={28} className="text-green-500" />
+                </div>
+                <h3 className="font-nunito font-bold text-navy text-xl mb-2">Message sent!</h3>
+                <p className="font-lato text-navy/60 text-base">
+                  We&apos;ll get back to you within 24 hours. Check your email for a confirmation.
+                </p>
+              </motion.div>
+            ) : (
+              <div className="bg-white border border-cream-dark rounded-3xl p-8 shadow-sm">
+                <h2 className="font-nunito font-bold text-navy text-2xl mb-6">Send us a message</h2>
 
-              {!submitted ? (
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <input
-                      type="text"
-                      placeholder="Your Name"
-                      value={formData.name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
-                      className="bg-white border border-navy/10 rounded-xl px-5 py-3.5 font-lato text-navy placeholder:text-navy/30 focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all duration-300"
-                      required
-                    />
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block font-poppins font-semibold text-navy/60 text-xs uppercase tracking-wider mb-1.5">Full Name</label>
+                      <input
+                        type="text"
+                        value={form.name}
+                        onChange={(e) => setForm({ ...form, name: e.target.value })}
+                        placeholder="Priya Sharma"
+                        required
+                        className="w-full bg-cream border border-cream-dark rounded-xl px-4 py-3 font-poppins text-navy text-sm placeholder:text-navy/30 focus:outline-none focus:border-orange/50 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-poppins font-semibold text-navy/60 text-xs uppercase tracking-wider mb-1.5">Phone</label>
+                      <input
+                        type="tel"
+                        value={form.phone}
+                        onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                        placeholder="98765 43210"
+                        className="w-full bg-cream border border-cream-dark rounded-xl px-4 py-3 font-poppins text-navy text-sm placeholder:text-navy/30 focus:outline-none focus:border-orange/50 transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block font-poppins font-semibold text-navy/60 text-xs uppercase tracking-wider mb-1.5">Email</label>
                     <input
                       type="email"
-                      placeholder="Email Address"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
-                      className="bg-white border border-navy/10 rounded-xl px-5 py-3.5 font-lato text-navy placeholder:text-navy/30 focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all duration-300"
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      placeholder="priya@example.com"
                       required
+                      className="w-full bg-cream border border-cream-dark rounded-xl px-4 py-3 font-poppins text-navy text-sm placeholder:text-navy/30 focus:outline-none focus:border-orange/50 transition-all"
                     />
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <input
-                      type="tel"
-                      placeholder="Phone Number"
-                      value={formData.phone}
-                      onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
-                      }
-                      className="bg-white border border-navy/10 rounded-xl px-5 py-3.5 font-lato text-navy placeholder:text-navy/30 focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all duration-300"
-                      required
-                    />
+
+                  <div>
+                    <label className="block font-poppins font-semibold text-navy/60 text-xs uppercase tracking-wider mb-1.5">Subject</label>
                     <select
-                      value={formData.city}
-                      onChange={(e) =>
-                        setFormData({ ...formData, city: e.target.value })
-                      }
-                      className="bg-white border border-navy/10 rounded-xl px-5 py-3.5 font-lato text-navy placeholder:text-navy/30 focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all duration-300 appearance-none cursor-pointer"
+                      value={form.subject}
+                      onChange={(e) => setForm({ ...form, subject: e.target.value })}
                       required
+                      className="w-full bg-cream border border-cream-dark rounded-xl px-4 py-3 font-poppins text-navy text-sm focus:outline-none focus:border-orange/50 transition-all"
                     >
-                      <option value="">Select City</option>
-                      {cities.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
+                      <option value="">Select a topic</option>
+                      <option value="parent">Parent enquiry</option>
+                      <option value="academy">Academy partnership</option>
+                      <option value="school">School partnership</option>
+                      <option value="press">Press / media</option>
+                      <option value="other">Other</option>
                     </select>
                   </div>
-                  <input
-                    type="text"
-                    placeholder="Child's Age (e.g., 6 months, 2 years)"
-                    value={formData.childAge}
-                    onChange={(e) =>
-                      setFormData({ ...formData, childAge: e.target.value })
-                    }
-                    className="w-full bg-white border border-navy/10 rounded-xl px-5 py-3.5 font-lato text-navy placeholder:text-navy/30 focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all duration-300"
-                  />
-                  <textarea
-                    placeholder="Your Message (optional)"
-                    value={formData.message}
-                    onChange={(e) =>
-                      setFormData({ ...formData, message: e.target.value })
-                    }
-                    rows={4}
-                    className="w-full bg-white border border-navy/10 rounded-xl px-5 py-3.5 font-lato text-navy placeholder:text-navy/30 focus:outline-none focus:border-orange focus:ring-2 focus:ring-orange/20 transition-all duration-300 resize-none"
-                  />
+
+                  <div>
+                    <label className="block font-poppins font-semibold text-navy/60 text-xs uppercase tracking-wider mb-1.5">Message</label>
+                    <textarea
+                      value={form.message}
+                      onChange={(e) => setForm({ ...form, message: e.target.value })}
+                      placeholder="Tell us how we can help..."
+                      rows={5}
+                      required
+                      className="w-full bg-cream border border-cream-dark rounded-xl px-4 py-3 font-poppins text-navy text-sm placeholder:text-navy/30 focus:outline-none focus:border-orange/50 transition-all resize-none"
+                    />
+                  </div>
+
                   <button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-orange to-orange-hover text-white font-poppins font-bold text-lg py-4 rounded-xl hover:shadow-lg hover:shadow-orange/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2"
+                    className="w-full bg-gradient-to-r from-orange to-orange-hover text-white font-poppins font-semibold py-3.5 rounded-full hover:shadow-lg hover:shadow-orange/30 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2"
                   >
-                    <Send size={20} />
+                    <Send size={16} />
                     Send Message
                   </button>
                 </form>
-              ) : (
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="bg-white rounded-2xl p-12 text-center shadow-lg"
-                >
-                  <div className="text-6xl mb-4">🎉</div>
-                  <h3 className="font-nunito font-bold text-2xl text-navy mb-2">
-                    Message Sent!
-                  </h3>
-                  <p className="text-navy/60 font-lato">
-                    We&apos;ll get back to you within 24 hours.
-                  </p>
-                </motion.div>
-              )}
-            </motion.div>
+              </div>
+            )}
+          </motion.div>
 
-            {/* Contact Info */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7 }}
-              className="space-y-8"
-            >
-              <div>
-                <h2 className="font-nunito font-bold text-2xl text-navy mb-6">
-                  Other Ways to Reach Us
-                </h2>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4 bg-white rounded-xl p-5 shadow-sm">
-                    <div className="w-12 h-12 rounded-xl bg-orange/10 flex items-center justify-center">
-                      <Mail className="text-orange" size={20} />
-                    </div>
-                    <div>
-                      <p className="text-navy/50 text-xs font-poppins">Email</p>
-                      <p className="font-lato text-navy font-medium">
-                        hello@babycorp.in
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 bg-white rounded-xl p-5 shadow-sm">
-                    <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center">
-                      <Phone className="text-gold" size={20} />
-                    </div>
-                    <div>
-                      <p className="text-navy/50 text-xs font-poppins">Phone</p>
-                      <p className="font-lato text-navy font-medium">
-                        +91 98765 43210
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 bg-white rounded-xl p-5 shadow-sm">
-                    <div className="w-12 h-12 rounded-xl bg-aqua/10 flex items-center justify-center">
-                      <Clock className="text-aqua" size={20} />
-                    </div>
-                    <div>
-                      <p className="text-navy/50 text-xs font-poppins">Hours</p>
-                      <p className="font-lato text-navy font-medium">
-                        Mon-Sat: 8:00 AM - 8:00 PM
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-4 bg-white rounded-xl p-5 shadow-sm">
-                    <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
-                      <MapPin className="text-green-600" size={20} />
-                    </div>
-                    <div>
-                      <p className="text-navy/50 text-xs font-poppins">
-                        Cities
-                      </p>
-                      <p className="font-lato text-navy font-medium">
-                        Mumbai • Delhi • Bengaluru • Hyderabad • Chennai • Pune
-                      </p>
-                    </div>
-                  </div>
+          {/* Contact info + map */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="lg:col-span-2 space-y-4"
+          >
+            {CONTACT_INFO.map((item, i) => (
+              <div key={i} className="bg-white border border-cream-dark rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+                <div className={`w-11 h-11 ${item.bg} rounded-xl flex items-center justify-center shrink-0`}>
+                  <item.icon size={20} className={item.color} />
+                </div>
+                <div>
+                  <p className="font-poppins font-semibold text-navy/50 text-xs uppercase tracking-wider">{item.label}</p>
+                  <p className="font-nunito font-bold text-navy text-base">{item.value}</p>
+                  <p className="font-lato text-navy/40 text-xs">{item.sub}</p>
                 </div>
               </div>
+            ))}
 
-              {/* WhatsApp CTA */}
-              <a
-                href="https://wa.me/919876543210?text=Hi%20BabyCorp!%20I%27m%20interested%20in%20enrolling%20my%20child."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block bg-[#25D366] text-white font-poppins font-bold text-lg py-4 rounded-xl hover:bg-[#22C35E] hover:shadow-lg hover:shadow-[#25D366]/30 active:scale-[0.98] transition-all duration-300 text-center whatsapp-pulse"
-              >
-                <span className="flex items-center justify-center gap-3">
-                  <MessageCircle size={24} />
-                  Chat on WhatsApp
-                </span>
-              </a>
-              <p className="text-navy/40 text-sm font-lato text-center">
-                Most parents prefer WhatsApp — we respond within 2 hours
-              </p>
-            </motion.div>
-          </div>
+            {/* Response time */}
+            <div className="bg-navy-light border border-white/10 rounded-2xl p-5 flex items-center gap-3">
+              <Clock size={18} className="text-gold shrink-0" />
+              <div>
+                <p className="font-poppins font-semibold text-white text-sm">Average response time</p>
+                <p className="font-bebas text-3xl text-gold tracking-wide">&lt; 4 hours</p>
+                <p className="font-lato text-white/40 text-xs">During business hours</p>
+              </div>
+            </div>
+
+            {/* Map placeholder */}
+            <div className="bg-cream-dark rounded-2xl h-36 flex items-center justify-center border border-cream-dark">
+              <div className="text-center">
+                <MapPin size={24} className="text-navy/20 mx-auto mb-1" />
+                <p className="font-lato text-navy/30 text-sm">New Delhi, India</p>
+              </div>
+            </div>
+          </motion.div>
         </div>
-      </section>
+      </div>
     </main>
   );
 }

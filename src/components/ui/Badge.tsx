@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Lock, Star } from "lucide-react";
+import { Lock } from "lucide-react";
 
 interface BadgeProps {
   name: string;
@@ -18,43 +18,44 @@ export default function Badge({ name, description, earned = true, date, icon, ch
       initial={{ opacity: 0, scale: 0.9 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
-      className={`relative rounded-2xl p-4 flex flex-col items-center gap-2 text-center transition-all duration-300 ${
+      whileHover={earned ? { scale: 1.05 } : {}}
+      className={`relative rounded-2xl p-5 flex flex-col items-center gap-3 text-center transition-all duration-300 ${
         earned
           ? "bg-gradient-to-br from-gold/20 to-orange/10 border border-gold/40 shadow-lg shadow-gold/10"
-          : "bg-white/5 border border-white/10 opacity-50"
+          : "bg-white/5 border border-white/10 opacity-40"
       }`}
     >
+      {/* Lock overlay for unearned */}
       {!earned && (
-        <div className="absolute top-2 right-2">
-          <Lock size={12} className="text-white/30" />
+        <div className="absolute inset-0 rounded-2xl flex items-center justify-center bg-navy/40 backdrop-blur-[2px]">
+          <Lock size={20} className="text-white/30" />
         </div>
       )}
+
+      {/* Badge icon */}
       <div
-        className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl ${
-          earned ? "bg-gradient-to-br from-gold to-orange shadow-lg" : "bg-white/10"
-        }`}
+        className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl ${
+          earned
+            ? "bg-gradient-to-br from-gold to-orange shadow-lg shadow-gold/30"
+            : "bg-white/10"
+        } ${earned ? "animate-shimmer bg-[length:200%_100%]" : ""}`}
       >
-        {icon || "🏆"}
+        {icon ?? "🏆"}
       </div>
-      <div>
-        <p className={`text-sm font-nunito font-bold ${earned ? "text-white" : "text-white/40"}`}>{name}</p>
+
+      {/* Badge info */}
+      <div className="space-y-0.5">
+        <p className={`text-sm font-nunito font-bold ${earned ? "text-white" : "text-white/30"}`}>{name}</p>
         {description && (
-          <p className="text-xs font-lato text-white/50 mt-0.5">{description}</p>
+          <p className="text-xs font-lato text-white/45 leading-snug">{description}</p>
         )}
         {childName && earned && (
-          <p className="text-xs font-poppins text-gold/80 mt-1">{childName}</p>
+          <p className="text-xs font-poppins text-gold/80 font-medium">{childName}</p>
         )}
         {date && earned && (
-          <p className="text-[10px] font-lato text-white/40 mt-0.5">{date}</p>
+          <p className="text-[10px] font-lato text-white/35">{date}</p>
         )}
       </div>
-      {earned && (
-        <div className="flex items-center gap-0.5">
-          {[...Array(3)].map((_, i) => (
-            <Star key={i} size={10} className="text-gold fill-gold" />
-          ))}
-        </div>
-      )}
     </motion.div>
   );
 }
