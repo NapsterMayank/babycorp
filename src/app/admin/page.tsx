@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/authStore";
 import {
   LayoutDashboard,
   Building2,
@@ -52,6 +54,14 @@ const NAV_ITEMS = [
 ];
 
 export default function AdminPage() {
+  const router = useRouter();
+  const { isLoggedIn, role } = useAuthStore();
+
+  useEffect(() => {
+    if (!isLoggedIn) { router.push("/auth/login"); return; }
+    if (role !== "admin") router.push("/");
+  }, [isLoggedIn, role, router]);
+
   const [activeTab, setActiveTab] = useState<Tab>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 

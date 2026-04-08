@@ -1,16 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Calendar, Clock, ChevronLeft, ArrowRight, MessageCircle } from "lucide-react";
+import { Check, Calendar, Clock, ChevronLeft, ArrowRight, MessageCircle, AlertCircle } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useParams } from "next/navigation";
 import StepIndicator from "@/components/ui/StepIndicator";
+import { useAuthStore } from "@/store/authStore";
+import { createClient } from "@/lib/supabase";
 
 const STEPS = ["Select Slot", "Choose Child", "Review & Pay"];
 
-const CHILDREN = [
-  { id: "c1", name: "Aryan Sharma", age: 8, initial: "A", gradient: "from-orange to-gold" },
-  { id: "c2", name: "Meera Sharma", age: 5, initial: "M", gradient: "from-aqua to-gold" },
+const TRIAL_INFO = {
+  academy: "Champions Cricket Club",
+  sport: "Cricket",
+  icon: "🏏",
+  trialFee: 200,
+  gstPct: 18,
+};
+
+const SLOTS = [
+  { id: "s1", time: "7:00 AM – 8:00 AM", available: true },
+  { id: "s2", time: "8:00 AM – 9:00 AM", available: true },
+  { id: "s3", time: "9:00 AM – 10:00 AM", available: false },
 ];
 
 const getNext14Days = () => {
@@ -31,38 +43,147 @@ const getNext14Days = () => {
   return days;
 };
 
-const SLOTS = [
-  { id: "s1", time: "7:00 AM – 8:00 AM", available: true },
-  { id: "s2", time: "8:00 AM – 9:00 AM", available: true },
-  { id: "s3", time: "9:00 AM – 10:00 AM", available: false },
-];
+interface Child {
+  id: string;
+  name: string;
+  dob: string;
+  gender: string;
+}
 
-const TRIAL_INFO = {
-  academy: "Champions Cricket Club",
-  sport: "Cricket",
-  icon: "🏏",
-  trialFee: 200,
-  gstPct: 18,
-};
+declare global {
+  interface Window {
+    Razorpay: new (options: Record<string, unknown>) => { open(): void };
+  }
+}
+
+function getAge(dob: string) {
+  return Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 3600 * 1000));
+}
 
 export default function TrialBookingPage() {
+  const router = useRouter();
+  const params = useParams();
+  const batchId = params.batchId as string;
+  const { isLoggedIn, user, isTestAccount } = useAuthStore();
+
   const [step, setStep] = useState(0);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState(false);
+  const [children, setChildren] = useState<Child[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Auth guard
+  useEffect(() => {
+    if (!isLoggedIn) router.push("/auth/login?next=/book/trial/" + batchId);
+  }, [isLoggedIn, router, batchId]);
+
+  // Fetch children
+  useEffect(() => {
+    if (!isLoggedIn || !user) return;
+    if (isTestAccount) {
+      setChildren([
+        { id: "test-child-1", name: "Aryan Sharma", dob: "2016-03-15", gender: "boy" },
+        { id: "test-child-2", name: "Meera Sharma", dob: "2019-07-22", gender: "girl" },
+      ]);
+      return;
+    }
+    createClient()
+      .from("children")
+      .select("id, name, dob, gender")
+      .eq("parent_id", user.id)
+      .then(({ data }) => { if (data) setChildren(data); });
+  }, [isLoggedIn, user, isTestAccount]);
 
   const days = getNext14Days();
   const selectedDayData = selectedDay !== null ? days[selectedDay] : null;
   const selectedSlotData = SLOTS.find((s) => s.id === selectedSlot);
-  const selectedChildData = CHILDREN.find((c) => c.id === selectedChild);
-
+  const selectedChildData = children.find((c) => c.id === selectedChild);
   const gst = Math.round((TRIAL_INFO.trialFee * TRIAL_INFO.gstPct) / 100);
   const total = TRIAL_INFO.trialFee + gst;
 
+  const loadRazorpay = (): Promise<boolean> =>
+    new Promise((resolve) => {
+      if (window.Razorpay) { resolve(true); return; }
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+
+  const handlePay = async () => {
+    setError(null);
+    if (isTestAccount) {
+      setIsLoading(true);
+      await new Promise((r) => setTimeout(r, 1000));
+      setConfirmed(true);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    const orderRes = await fetch("/api/razorpay/create-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "trial",
+        childId: selectedChild,
+        amount: total,
+        batchId,
+      }),
+    });
+
+    if (!orderRes.ok) {
+      setError("Could not create payment order. Try again.");
+      setIsLoading(false);
+      return;
+    }
+
+    const { orderId, amount, currency, keyId } = await orderRes.json();
+    const loaded = await loadRazorpay();
+    if (!loaded) {
+      setError("Payment gateway failed to load.");
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(false);
+    const rzp = new window.Razorpay({
+      key: keyId,
+      amount,
+      currency,
+      order_id: orderId,
+      name: "BabyCorp",
+      description: `Trial — ${TRIAL_INFO.academy}`,
+      image: "/logo.png",
+      prefill: { name: user?.name ?? "", email: user?.email ?? "", contact: user?.phone ?? "" },
+      method: { card: true, upi: true, netbanking: true, wallet: true, emi: true, paylater: true },
+      config: {
+        display: {
+          sequence: ["block.upi", "block.card", "block.netbanking", "block.wallet", "block.emi", "block.paylater"],
+          blocks: {
+            upi: { name: "UPI", instruments: [{ method: "upi" }] },
+            card: { name: "Cards", instruments: [{ method: "card" }] },
+            netbanking: { name: "Net Banking", instruments: [{ method: "netbanking" }] },
+            wallet: { name: "Wallets", instruments: [{ method: "wallet" }] },
+            emi: { name: "EMI", instruments: [{ method: "emi" }] },
+            paylater: { name: "Pay Later", instruments: [{ method: "paylater" }] },
+          },
+        },
+      },
+      theme: { color: "#FF6B35" },
+      handler: () => { setConfirmed(true); },
+      modal: { ondismiss: () => setIsLoading(false) },
+    });
+    rzp.open();
+  };
+
   const handleNext = () => {
-    if (step < 2) setStep(step + 1);
-    else setConfirmed(true);
+    if (step < 2) { setStep(step + 1); return; }
+    handlePay();
   };
 
   const canProceed = () => {
@@ -76,7 +197,6 @@ export default function TrialBookingPage() {
       <div className="min-h-screen bg-navy flex items-center justify-center px-4 relative overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-orange/10 rounded-full blur-3xl animate-float-slow pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-aqua/8 rounded-full blur-3xl animate-float-medium pointer-events-none" />
-
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -90,16 +210,12 @@ export default function TrialBookingPage() {
           >
             <Check size={40} className="text-white" />
           </motion.div>
-
-          <h1 className="font-nunito font-black text-4xl text-white mb-3">
-            Trial Booked! 🎉
-          </h1>
+          <h1 className="font-nunito font-black text-4xl text-white mb-3">Trial Booked! 🎉</h1>
           <p className="font-lato text-white/60 text-base mb-6 leading-relaxed">
             Your trial session is confirmed.{" "}
             {selectedDayData && `${selectedDayData.day}, ${selectedDayData.date} ${selectedDayData.month}`}
             {selectedSlotData && ` · ${selectedSlotData.time}`}
           </p>
-
           <div className="bg-navy-light border border-white/10 rounded-2xl p-4 mb-6 text-left">
             <div className="flex items-center gap-3 mb-2">
               <span className="text-2xl">{TRIAL_INFO.icon}</span>
@@ -113,7 +229,6 @@ export default function TrialBookingPage() {
               WhatsApp confirmation sent!
             </div>
           </div>
-
           <Link href="/dashboard">
             <button className="w-full bg-gradient-to-r from-orange to-orange-hover text-white font-poppins font-semibold py-3.5 rounded-full hover:shadow-lg hover:shadow-orange/30 transition-all">
               Back to Dashboard
@@ -132,7 +247,6 @@ export default function TrialBookingPage() {
           <span className="font-poppins text-sm">Back</span>
         </Link>
 
-        {/* Academy info strip */}
         <div className="bg-navy-light border border-white/10 rounded-2xl p-4 flex items-center gap-3 mb-6">
           <span className="text-3xl">{TRIAL_INFO.icon}</span>
           <div>
@@ -145,21 +259,19 @@ export default function TrialBookingPage() {
           <StepIndicator steps={STEPS} currentStep={step} />
         </div>
 
+        {error && (
+          <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 mb-4">
+            <AlertCircle size={14} className="text-red-400 shrink-0" />
+            <p className="font-lato text-red-400 text-sm">{error}</p>
+          </div>
+        )}
+
         <AnimatePresence mode="wait">
-          {/* Step 0: Select slot */}
           {step === 0 && (
-            <motion.div
-              key="step0"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-6"
-            >
+            <motion.div key="step0" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }} className="space-y-6">
               <div>
                 <h2 className="font-nunito font-bold text-navy text-xl mb-1">Pick a date</h2>
                 <p className="font-lato text-navy/50 text-sm mb-4">Weekend sessions available</p>
-
                 <div className="grid grid-cols-7 gap-2">
                   {days.map((day, i) => (
                     <button
@@ -181,7 +293,6 @@ export default function TrialBookingPage() {
                   ))}
                 </div>
               </div>
-
               {selectedDay !== null && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                   <h3 className="font-poppins font-semibold text-navy text-sm mb-3 flex items-center gap-2">
@@ -213,59 +324,46 @@ export default function TrialBookingPage() {
             </motion.div>
           )}
 
-          {/* Step 1: Choose child */}
           {step === 1 && (
-            <motion.div
-              key="step1"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-            >
+            <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
               <h2 className="font-nunito font-bold text-navy text-xl mb-1">Who is this for?</h2>
               <p className="font-lato text-navy/50 text-sm mb-4">Select the child attending the trial</p>
-
               <div className="space-y-3">
-                {CHILDREN.map((child) => (
-                  <button
-                    key={child.id}
-                    onClick={() => setSelectedChild(child.id)}
-                    className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all duration-200 ${
-                      selectedChild === child.id
-                        ? "bg-orange/5 border-orange shadow-sm"
-                        : "bg-white border-cream-dark hover:border-orange/40"
-                    }`}
-                  >
-                    <div className={`w-12 h-12 bg-gradient-to-br ${child.gradient} rounded-xl flex items-center justify-center text-white font-nunito font-black text-xl`}>
-                      {child.initial}
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p className="font-poppins font-semibold text-navy text-base">{child.name}</p>
-                      <p className="font-lato text-navy/50 text-sm">{child.age} years old</p>
-                    </div>
-                    {selectedChild === child.id && (
-                      <div className="w-6 h-6 bg-orange rounded-full flex items-center justify-center">
-                        <Check size={13} className="text-white" />
+                {children.map((child) => {
+                  const age = getAge(child.dob);
+                  const gradient = child.gender === "girl" ? "from-pink-500 to-purple-500" : "from-orange to-gold";
+                  return (
+                    <button
+                      key={child.id}
+                      onClick={() => setSelectedChild(child.id)}
+                      className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all duration-200 ${
+                        selectedChild === child.id
+                          ? "bg-orange/5 border-orange shadow-sm"
+                          : "bg-white border-cream-dark hover:border-orange/40"
+                      }`}
+                    >
+                      <div className={`w-12 h-12 bg-gradient-to-br ${gradient} rounded-xl flex items-center justify-center text-white font-nunito font-black text-xl`}>
+                        {child.name[0]}
                       </div>
-                    )}
-                  </button>
-                ))}
+                      <div className="flex-1 text-left">
+                        <p className="font-poppins font-semibold text-navy text-base">{child.name}</p>
+                        <p className="font-lato text-navy/50 text-sm">{age} years old</p>
+                      </div>
+                      {selectedChild === child.id && (
+                        <div className="w-6 h-6 bg-orange rounded-full flex items-center justify-center">
+                          <Check size={13} className="text-white" />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </motion.div>
           )}
 
-          {/* Step 2: Review & Pay */}
           {step === 2 && (
-            <motion.div
-              key="step2"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-            >
+            <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
               <h2 className="font-nunito font-bold text-navy text-xl mb-4">Review & Confirm</h2>
-
-              {/* Receipt card */}
               <div className="bg-white border border-cream-dark rounded-2xl overflow-hidden shadow-sm mb-4">
                 <div className="bg-gradient-to-r from-[#1a3a1a] to-[#15803d] p-4 flex items-center gap-3">
                   <span className="text-3xl">🏏</span>
@@ -274,7 +372,6 @@ export default function TrialBookingPage() {
                     <p className="font-lato text-white/70 text-sm">Trial Session</p>
                   </div>
                 </div>
-
                 <div className="p-4 space-y-3 text-sm">
                   <div className="flex items-center justify-between font-lato text-navy/70">
                     <span className="flex items-center gap-2"><Calendar size={13} />Date</span>
@@ -290,15 +387,12 @@ export default function TrialBookingPage() {
                     <span>Child</span>
                     <span className="font-poppins font-semibold text-navy">{selectedChildData?.name ?? "—"}</span>
                   </div>
-
                   <div className="border-t border-cream-dark pt-3 space-y-2">
                     <div className="flex items-center justify-between text-navy/60">
-                      <span>Trial fee</span>
-                      <span>₹{TRIAL_INFO.trialFee}</span>
+                      <span>Trial fee</span><span>₹{TRIAL_INFO.trialFee}</span>
                     </div>
                     <div className="flex items-center justify-between text-navy/60">
-                      <span>GST (18%)</span>
-                      <span>₹{gst}</span>
+                      <span>GST (18%)</span><span>₹{gst}</span>
                     </div>
                     <div className="flex items-center justify-between font-poppins font-bold text-navy border-t border-cream-dark pt-2">
                       <span>Total</span>
@@ -307,7 +401,6 @@ export default function TrialBookingPage() {
                   </div>
                 </div>
               </div>
-
               <p className="font-lato text-navy/40 text-xs text-center">
                 By confirming, you agree to BabyCorp&apos;s refund policy. Payment via Razorpay.
               </p>
@@ -315,7 +408,6 @@ export default function TrialBookingPage() {
           )}
         </AnimatePresence>
 
-        {/* Nav buttons */}
         <div className="flex gap-3 mt-6">
           {step > 0 && (
             <button
@@ -327,11 +419,14 @@ export default function TrialBookingPage() {
           )}
           <button
             onClick={handleNext}
-            disabled={!canProceed()}
+            disabled={!canProceed() || isLoading}
             className="flex-1 bg-gradient-to-r from-orange to-orange-hover text-white font-poppins font-semibold text-sm py-3 rounded-full hover:shadow-lg hover:shadow-orange/30 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
-            {step === 2 ? "Confirm & Pay" : "Continue"}
-            <ArrowRight size={16} />
+            {isLoading ? (
+              <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+            ) : (
+              <>{step === 2 ? "Confirm & Pay" : "Continue"} <ArrowRight size={16} /></>
+            )}
           </button>
         </div>
       </div>

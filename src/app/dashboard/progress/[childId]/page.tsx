@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Download, ChevronLeft, MessageSquare } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/authStore";
 import SkillBar from "@/components/ui/SkillBar";
 import Badge from "@/components/ui/Badge";
 
@@ -68,6 +70,13 @@ const BADGES = [
 ];
 
 export default function ProgressPage() {
+  const router = useRouter();
+  const { isLoggedIn, user } = useAuthStore();
+
+  useEffect(() => {
+    if (!isLoggedIn) router.push("/auth/login");
+  }, [isLoggedIn, router]);
+
   const [activeSport, setActiveSport] = useState(CHILD.sports[0]);
   const data = SPORT_DATA[activeSport];
 
@@ -112,7 +121,7 @@ export default function ProgressPage() {
             </div>
 
             <div className="flex-1">
-              <h1 className="font-nunito font-black text-3xl text-white">{CHILD.name} Sharma</h1>
+              <h1 className="font-nunito font-black text-3xl text-white">{user?.name ?? CHILD.name}</h1>
               <p className="font-lato text-white/50 text-sm">{CHILD.age} years old · {CHILD.sports.join(" & ")}</p>
             </div>
 

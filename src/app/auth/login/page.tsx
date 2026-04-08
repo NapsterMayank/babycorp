@@ -1,17 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Phone, Mail, ArrowRight, Chrome, FlaskConical } from "lucide-react";
+import { Phone, Mail, ArrowRight, Chrome, FlaskConical, AlertCircle } from "lucide-react";
 import { TEST_ACCOUNTS, isTestModeEnabled } from "@/lib/testAccounts";
 import { useAuthStore } from "@/store/authStore";
+import { createClient } from "@/lib/supabase";
+import type { AppUser } from "@/store/authStore";
+
+const ROLE_HOME: Record<string, string> = {
+  parent: "/dashboard",
+  academy: "/academy-dashboard",
+  admin: "/admin",
+};
 
 export default function LoginPage() {
   const router = useRouter();
-  const loginAsTest = useAuthStore((s) => s.loginAsTest);
+  const { loginAsTest, setSession, isLoggedIn, role } = useAuthStore();
 
   const [mode, setMode] = useState<"phone" | "email">("phone");
   const [phone, setPhone] = useState("");
@@ -20,15 +28,15 @@ export default function LoginPage() {
   const [loadingRole, setLoadingRole] = useState<string | null>(null);
   const [otpMode, setOtpMode] = useState(false);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (mode === "phone" && !otpMode) {
-      setOtpMode(true);
-      return;
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isLoggedIn && role) {
+      router.push(ROLE_HOME[role] ?? "/");
     }
-    console.log("Login attempt:", { mode, phone, email });
-  };
+  }, [isLoggedIn, role, router]);
 
   const handleOtpChange = (index: number, value: string) => {
     if (value.length > 1) return;
@@ -48,6 +56,105 @@ export default function LoginPage() {
       loginAsTest(account);
       router.push(account.dashboardPath);
     }, 700);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    const supabase = createClient();
+
+    if (mode === "phone") {
+      if (!otpMode) {
+        if (!phone || phone.length !== 10) {
+          setError("Enter a valid 10-digit mobile number");
+          return;
+        }
+        setIsLoading(true);
+        const { error: otpError } = await supabase.auth.signInWithOtp({
+          phone: `+91${phone}`,
+        });
+        setIsLoading(false);
+        if (otpError) {
+          setError(otpError.message);
+          return;
+        }
+        setOtpMode(true);
+      } else {
+        const otpCode = otp.join("");
+        if (otpCode.length !== 6) {
+          setError("Enter all 6 OTP digits");
+          return;
+        }
+        setIsLoading(true);
+        const { data, error: verifyError } = await supabase.auth.verifyOtp({
+          phone: `+91${phone}`,
+          token: otpCode,
+          type: "sms",
+        });
+        setIsLoading(false);
+        if (verifyError) {
+          setError(verifyError.message);
+          return;
+        }
+        if (data.session) {
+          await redirectAfterLogin(data.session.user.id, data.session);
+        }
+      }
+    } else {
+      if (!email || !password) {
+        setError("Enter your email and password");
+        return;
+      }
+      setIsLoading(true);
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      setIsLoading(false);
+      if (signInError) {
+        setError(signInError.message);
+        return;
+      }
+      if (data.session) {
+        await redirectAfterLogin(data.session.user.id, data.session);
+      }
+    }
+  };
+
+  const redirectAfterLogin = async (userId: string, session: Parameters<typeof setSession>[0]) => {
+    const supabase = createClient();
+    const { data: row } = await supabase
+      .from("users")
+      .select("id, name, email, mobile, role, city, avatar_url")
+      .eq("id", userId)
+      .single();
+
+    if (row) {
+      const profile: AppUser = {
+        id: row.id,
+        name: row.name,
+        email: row.email ?? "",
+        phone: row.mobile ?? "",
+        role: row.role,
+        city: row.city ?? undefined,
+        avatar_url: row.avatar_url ?? undefined,
+      };
+      setSession(session, profile);
+      router.push(ROLE_HOME[row.role] ?? "/");
+    } else {
+      // Supabase user exists but no profile — go finish registration
+      router.push("/auth/register");
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    const supabase = createClient();
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
   };
 
   const showTestPanel = isTestModeEnabled();
@@ -129,7 +236,6 @@ export default function LoginPage() {
 
         {/* Login card */}
         <div className="relative">
-          {/* Shimmer border */}
           <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-orange/20 via-gold/10 to-aqua/20 blur-sm pointer-events-none" />
           <div className="relative bg-navy-light border border-white/10 rounded-3xl p-8 shadow-2xl shadow-navy/60">
             {/* Logo */}
@@ -151,6 +257,7 @@ export default function LoginPage() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
+              onClick={handleGoogleSignIn}
               className="w-full flex items-center justify-center gap-3 bg-white text-navy font-poppins font-semibold text-sm py-3.5 rounded-full hover:bg-cream transition-all duration-200 shadow-sm hover:shadow-md mb-5"
             >
               <Chrome size={18} className="text-orange" />
@@ -167,6 +274,21 @@ export default function LoginPage() {
               <span className="text-white/25 font-lato text-xs">OR</span>
               <div className="flex-1 h-px bg-white/10" />
             </motion.div>
+
+            {/* Error */}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 mb-4"
+                >
+                  <AlertCircle size={14} className="text-red-400 shrink-0" />
+                  <p className="font-lato text-red-400 text-sm">{error}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Form */}
             <motion.form
@@ -194,7 +316,7 @@ export default function LoginPage() {
                       <input
                         type="tel"
                         value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
+                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
                         placeholder="98765 43210"
                         maxLength={10}
                         className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white font-poppins text-sm placeholder:text-white/20 focus:outline-none focus:border-orange/50 focus:bg-white/8 transition-all"
@@ -215,7 +337,7 @@ export default function LoginPage() {
                     transition={{ duration: 0.25 }}
                   >
                     <p className="text-white/50 font-lato text-sm mb-4">
-                      OTP sent to <span className="text-orange font-poppins font-semibold">+91 {phone || "98765 43210"}</span>
+                      OTP sent to <span className="text-orange font-poppins font-semibold">+91 {phone}</span>
                     </p>
                     <div className="flex gap-2 justify-between">
                       {otp.map((digit, i) => (
@@ -234,7 +356,7 @@ export default function LoginPage() {
                     {showTestPanel && (
                       <p className="text-white/20 font-mono text-[10px] mt-2">Test OTP: 000000</p>
                     )}
-                    <button type="button" onClick={() => setOtpMode(false)} className="text-white/30 font-lato text-xs mt-2 hover:text-white/50 transition-colors">
+                    <button type="button" onClick={() => { setOtpMode(false); setError(null); }} className="text-white/30 font-lato text-xs mt-2 hover:text-white/50 transition-colors">
                       ← Change number
                     </button>
                   </motion.div>
@@ -255,7 +377,7 @@ export default function LoginPage() {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="parent@babycorp.test"
+                        placeholder="you@example.com"
                         className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white font-poppins text-sm placeholder:text-white/20 focus:outline-none focus:border-orange/50 transition-all"
                       />
                     </div>
@@ -269,19 +391,23 @@ export default function LoginPage() {
                         className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white font-poppins text-sm placeholder:text-white/20 focus:outline-none focus:border-orange/50 transition-all"
                       />
                     </div>
-                    {showTestPanel && (
-                      <p className="text-white/20 font-mono text-[10px]">Test password: Test@123</p>
-                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
 
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-orange to-orange-hover text-white font-poppins font-semibold text-sm py-3.5 rounded-full hover:shadow-lg hover:shadow-orange/30 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2"
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-orange to-orange-hover text-white font-poppins font-semibold text-sm py-3.5 rounded-full hover:shadow-lg hover:shadow-orange/30 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-60 disabled:scale-100"
               >
-                {mode === "phone" ? (otpMode ? "Verify & Sign In" : "Send OTP") : "Sign In"}
-                <ArrowRight size={16} />
+                {isLoading ? (
+                  <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    {mode === "phone" ? (otpMode ? "Verify & Sign In" : "Send OTP") : "Sign In"}
+                    <ArrowRight size={16} />
+                  </>
+                )}
               </button>
             </motion.form>
 
@@ -293,7 +419,7 @@ export default function LoginPage() {
               className="mt-5 text-center"
             >
               <button
-                onClick={() => { setMode(mode === "phone" ? "email" : "phone"); setOtpMode(false); }}
+                onClick={() => { setMode(mode === "phone" ? "email" : "phone"); setOtpMode(false); setError(null); }}
                 className="text-aqua font-poppins text-sm hover:text-aqua/80 transition-colors flex items-center gap-1.5 mx-auto"
               >
                 {mode === "phone" ? <Mail size={14} /> : <Phone size={14} />}

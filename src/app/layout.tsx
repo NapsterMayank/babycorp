@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import ScrollProgress from "@/components/ui/ScrollProgress";
+import { AuthProvider } from "@/components/providers/AuthProvider";
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -68,10 +69,12 @@ export default function RootLayout({
       <body
         className={`${nunito.variable} ${poppins.variable} ${lato.variable} ${bebas.variable} antialiased`}
       >
-        <ScrollProgress />
-        <Navbar />
-        {children}
-        <Footer />
+        <AuthProvider>
+          <ScrollProgress />
+          <Navbar />
+          {children}
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

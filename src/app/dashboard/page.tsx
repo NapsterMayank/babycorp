@@ -1,16 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, Bell, TrendingUp, CreditCard, Calendar, Star, Share2, Clock, X, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/authStore";
+import { createClient } from "@/lib/supabase";
 import ChildCard from "@/components/ui/ChildCard";
-
-
-const CHILDREN = [
-  { id: "c1", name: "Aryan", age: 8, sports: ["Cricket", "Chess"], gradientFrom: "from-orange", gradientTo: "to-gold" },
-  { id: "c2", name: "Meera", age: 5, sports: ["Swimming", "Gymnastics"], gradientFrom: "from-aqua", gradientTo: "to-gold" },
-];
 
 const SESSIONS = [
   { id: 1, date: "Sat", dateNum: 12, month: "Apr", academy: "Delhi Chess Academy", sport: "Chess", sportColor: "border-l-amber-700", icon: "♟️", time: "9:00 AM – 10:00 AM", child: "Aryan" },
@@ -44,8 +41,64 @@ const RECOMMENDED = [
 ];
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const { isLoggedIn, user, isTestAccount } = useAuthStore();
+
   const [activeChild, setActiveChild] = useState(0);
   const [markedAbsence, setMarkedAbsence] = useState<number[]>([]);
+  const [children, setChildren] = useState<Array<{
+    id: string; name: string; age: number; sports: string[];
+    gradientFrom: string; gradientTo: string; hasSubscription: boolean;
+  }>>([]);
+  const [loadingChildren, setLoadingChildren] = useState(true);
+
+  // Auth guard
+  useEffect(() => {
+    if (!isLoggedIn) router.push("/auth/login");
+  }, [isLoggedIn, router]);
+
+  // Fetch children + subscriptions
+  useEffect(() => {
+    if (!isLoggedIn || !user) return;
+
+    const SPORT_NAMES: Record<string, string> = {
+      chess: "Chess", swimming: "Swimming", cricket: "Cricket",
+      badminton: "Badminton", gymnastics: "Gymnastics",
+    };
+    const GRADIENTS = [
+      { from: "from-orange", to: "to-gold" },
+      { from: "from-aqua", to: "to-gold" },
+      { from: "from-purple-500", to: "to-purple-300" },
+      { from: "from-green-500", to: "to-aqua" },
+    ];
+
+    if (isTestAccount) {
+      setChildren([
+        { id: "test-c1", name: "Aryan", age: 8, sports: ["Cricket", "Chess"], gradientFrom: "from-orange", gradientTo: "to-gold", hasSubscription: true },
+        { id: "test-c2", name: "Meera", age: 5, sports: ["Swimming", "Gymnastics"], gradientFrom: "from-aqua", gradientTo: "to-gold", hasSubscription: false },
+      ]);
+      setLoadingChildren(false);
+      return;
+    }
+
+    const supabase = createClient();
+    Promise.all([
+      supabase.from("children").select("id, name, dob, sport_ids").eq("parent_id", user.id),
+      supabase.from("subscriptions").select("child_id").eq("parent_id", user.id).eq("status", "active"),
+    ]).then(([{ data: kids }, { data: subs }]) => {
+      const activeIds = new Set(subs?.map(s => s.child_id) ?? []);
+      setChildren((kids ?? []).map((k, i) => ({
+        id: k.id,
+        name: k.name,
+        age: Math.floor((Date.now() - new Date(k.dob).getTime()) / (365.25 * 24 * 3600 * 1000)),
+        sports: (k.sport_ids ?? []).map((s: string) => SPORT_NAMES[s] ?? s),
+        gradientFrom: GRADIENTS[i % GRADIENTS.length].from,
+        gradientTo: GRADIENTS[i % GRADIENTS.length].to,
+        hasSubscription: activeIds.has(k.id),
+      })));
+      setLoadingChildren(false);
+    });
+  }, [isLoggedIn, user, isTestAccount]);
 
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
@@ -66,7 +119,7 @@ export default function DashboardPage() {
             <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
               <p className="text-white/40 font-lato text-sm">Good morning,</p>
               <h1 className="font-nunito font-black text-3xl text-white flex items-center gap-2">
-                Priya Sharma 👋
+                {user?.name ?? "there"} 👋
               </h1>
             </motion.div>
             <div className="flex items-center gap-3">
@@ -79,7 +132,7 @@ export default function DashboardPage() {
 
           {/* Child switcher tabs */}
           <div className="flex gap-2 mb-6">
-            {CHILDREN.map((child, i) => (
+            {children.map((child, i) => (
               <button
                 key={child.id}
                 onClick={() => setActiveChild(i)}
@@ -119,20 +172,26 @@ export default function DashboardPage() {
         <motion.section {...fadeInUp}>
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-nunito font-bold text-navy text-xl">My Children</h2>
-            <Link href="/auth/register" className="text-orange font-poppins text-sm hover:text-orange-hover transition-colors flex items-center gap-1">
+            <Link href="/dashboard/add-child" className="text-orange font-poppins text-sm hover:text-orange-hover transition-colors flex items-center gap-1">
               + Add child
             </Link>
           </div>
           <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4">
-            {CHILDREN.map((child, i) => (
-              <div key={child.id} className="shrink-0 w-56">
-                <ChildCard
-                  {...child}
-                  selected={activeChild === i}
-                  onSelect={() => setActiveChild(i)}
-                />
+            {loadingChildren ? (
+              <div className="w-56 h-32 bg-white border border-cream-dark rounded-2xl flex items-center justify-center">
+                <div className="w-6 h-6 border-2 border-orange/30 border-t-orange rounded-full animate-spin" />
               </div>
-            ))}
+            ) : (
+              children.map((child, i) => (
+                <div key={child.id} className="shrink-0 w-56">
+                  <ChildCard
+                    {...child}
+                    selected={activeChild === i}
+                    onSelect={() => setActiveChild(i)}
+                  />
+                </div>
+              ))
+            )}
           </div>
         </motion.section>
 
